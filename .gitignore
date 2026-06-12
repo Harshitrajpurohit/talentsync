@@ -1,0 +1,61 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build Results
+[Bb]in/
+[Oo]bj/
+
+.idea/
+
+# VS Code
+.vscode/
+
+# ASP.NET Core
+appsettings.Development.json
+
+# User Secrets
+secrets.json
+
+# Publish Output
+publish/
+Publish/
+
+# EF Core Local Database Files
+*.mdf
+*.ldf
+
+# Logs
+logs/
+*.log
+
+node_modules/
+
+dist/
+build/
+
+.npm/
+.cache/
+
+# Package Managers
+.pnpm-store/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+*.tmp
+*.temp
+
+
+coverage/
+TestResults/
+
+*.DotSettings.user

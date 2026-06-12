@@ -1,0 +1,6 @@
+@TalentSync.Api_HostAddress = http://localhost:5263
+
+GET {{TalentSync.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="TalentSync.Api/TalentSync.Api.csproj" />
+  <Project Path="TalentSync.Application/TalentSync.Application.csproj" />
+  <Project Path="TalentSync.Domain/TalentSync.Domain.csproj" />
+  <Project Path="TalentSync.Infrastructure/TalentSync.Infrastructure.csproj" />
 </Solution>

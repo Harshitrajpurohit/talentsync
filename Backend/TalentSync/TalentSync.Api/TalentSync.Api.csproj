@@ -18,11 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TalentSync.Application\TalentSync.Application.csproj" />
     <ProjectReference Include="..\TalentSync.Infrastructure\TalentSync.Infrastructure.csproj" />
   </ItemGroup>
 

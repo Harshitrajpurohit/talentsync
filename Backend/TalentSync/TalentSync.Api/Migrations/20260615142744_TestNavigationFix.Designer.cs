@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalentSync.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using TalentSync.Infrastructure.Persistence;
 namespace TalentSync.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260615142744_TestNavigationFix")]
+    partial class TestNavigationFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,8 +110,6 @@ namespace TalentSync.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -139,6 +140,9 @@ namespace TalentSync.Api.Migrations
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("RoleId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -147,9 +151,16 @@ namespace TalentSync.Api.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("RoleId1");
+
+                    b.HasIndex("UserId1");
 
                     b.HasIndex("UserId", "RoleId")
                         .IsUnique();
@@ -160,16 +171,24 @@ namespace TalentSync.Api.Migrations
             modelBuilder.Entity("TalentSync.Domain.Entities.User.UserRole", b =>
                 {
                     b.HasOne("TalentSync.Domain.Entities.User.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TalentSync.Domain.Entities.User.User", "User")
+                    b.HasOne("TalentSync.Domain.Entities.User.Role", null)
                         .WithMany("UserRoles")
+                        .HasForeignKey("RoleId1");
+
+                    b.HasOne("TalentSync.Domain.Entities.User.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("TalentSync.Domain.Entities.User.User", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Role");
 

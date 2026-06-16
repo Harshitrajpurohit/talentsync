@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,12 +15,14 @@ namespace TalentSync.Api.Middleware
 
         public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
         {
+
             _next = next;
             _logger = logger;
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
                 await _next(httpContext);
@@ -30,7 +33,15 @@ namespace TalentSync.Api.Middleware
                 {
                     await HandleExceptionAsync(httpContext, ex);
                 }
+            }finally { 
+                stopwatch.Stop(); 
+                _logger.LogInformation("Request {Method} {Path} completed with status code {StatusCode} in {ElapsedMilliseconds}ms",
+                    httpContext.Request.Method,
+                    httpContext.Request.Path,
+                    httpContext.Response.StatusCode,
+                    stopwatch.ElapsedMilliseconds);
             }
+
 
         }
         private static async Task HandleExceptionAsync(HttpContext context, Exception ex)

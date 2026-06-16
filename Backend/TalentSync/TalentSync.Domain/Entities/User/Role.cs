@@ -9,5 +9,7 @@ namespace TalentSync.Domain.Entities.User
     public class Role : BaseEntity
     {
         public RoleName Name { get; set; }
+
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }

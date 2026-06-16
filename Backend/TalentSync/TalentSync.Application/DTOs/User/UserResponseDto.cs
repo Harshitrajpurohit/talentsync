@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TalentSync.Domain.Common;
 using TalentSync.Domain.Enums.User;
 
-namespace TalentSync.Domain.Entities.User
+namespace TalentSync.Application.DTOs.User
 {
-    public class User : BaseEntity
+    public class UserResponseDto
     {
         public string Name { get; set; }
 
         public string Email { get; set; }
 
-        public string PasswordHash { get; set; }    
-
         public UserStatus Status { get; set; }
 
         public string? Phone { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public Guid Id { get; set; }
 
+        public bool IsDeleted { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

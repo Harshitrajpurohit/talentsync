@@ -1,7 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using TalentSync.Api.Middleware;
+using TalentSync.Application.Interfaces.Repositories;
+using TalentSync.Application.Interfaces.Services;
+using TalentSync.Application.Mappings.UserMappings;
+using TalentSync.Application.Services;
 using TalentSync.Infrastructure.Persistence;
 using TalentSync.Infrastructure.Persistence.Seeders;
+using TalentSync.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +19,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         b => b.MigrationsAssembly("TalentSync.Api")
     )
 );
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters
+            .Add(new JsonStringEnumConverter());
+    });
+
+
+// register auto mapper
+builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
+
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Add services to the container.
 

@@ -49,6 +49,8 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
             builder.Property(u => u.CreatedAt)
                    .HasDefaultValueSql("GETUTCDATE()");
 
+            builder.HasIndex(u => u.CreatedAt);
+
             builder.Property(u => u.UpdatedAt)
                    .HasDefaultValueSql("GETUTCDATE()");
 

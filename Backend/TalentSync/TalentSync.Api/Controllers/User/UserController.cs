@@ -65,7 +65,7 @@ namespace TalentSync.Api.Controllers.User
         }
 
         // Restore User
-        [HttpPatch("{id}/restore")]
+        [HttpPost("{id}/restore")]
         public async Task<IActionResult> RestoreUserAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Restoring user with ID: {UserId}", id);

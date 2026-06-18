@@ -4,6 +4,7 @@ using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Domain.Enums.User;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TalentSync.Api.Controllers.User
 {
@@ -20,6 +21,7 @@ namespace TalentSync.Api.Controllers.User
             _userService = userService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {

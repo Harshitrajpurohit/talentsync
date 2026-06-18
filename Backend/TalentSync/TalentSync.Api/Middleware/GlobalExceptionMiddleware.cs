@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
@@ -28,7 +29,7 @@ namespace TalentSync.Api.Middleware
                 await _next(httpContext);
             }
             catch (Exception ex) {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                _logger.LogError(ex, "Unhandled exception occurred. TraceId: {TraceId}", httpContext.TraceIdentifier);
                 if (!httpContext.Response.HasStarted)
                 {
                     await HandleExceptionAsync(httpContext, ex);
@@ -50,8 +51,9 @@ namespace TalentSync.Api.Middleware
 
             var (statusCode, message) = ex switch
             {
+                ValidationException => (HttpStatusCode.BadRequest, ex.Message),
                 InvalidOperationException => (HttpStatusCode.BadRequest, ex.Message),
-                UnauthorizedAccessException => (HttpStatusCode.Unauthorized, "You are not authorized to perform this action."),
+                UnauthorizedAccessException => (HttpStatusCode.Unauthorized, ex?.Message ?? "You are not authorized to perform this action."),
                 KeyNotFoundException => (HttpStatusCode.NotFound, ex.Message),
                 ArgumentException => (HttpStatusCode.BadRequest, ex.Message),
                 _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.")

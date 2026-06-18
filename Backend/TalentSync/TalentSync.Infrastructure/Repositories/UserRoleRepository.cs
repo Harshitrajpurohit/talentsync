@@ -24,7 +24,9 @@ namespace TalentSync.Infrastructure.Repositories
         }
 
         public async Task<UserRole?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken) { 
-            return await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId && !ur.IsDeleted, cancellationToken);
+            return await _context.UserRoles
+                .Include(ur => ur.Role)
+                .FirstOrDefaultAsync(ur => ur.UserId == userId && !ur.IsDeleted, cancellationToken);
         }
         public async Task<UserRole?> GetByUserIdWithRoleAsync(Guid userId, CancellationToken cancellationToken)
         {

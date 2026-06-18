@@ -64,7 +64,6 @@ namespace TalentSync.Infrastructure.Repositories
         {
             user.Email = user.Email.Trim().ToLower();
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync(cancellationToken);
             return user;
         }
 
@@ -89,6 +88,11 @@ namespace TalentSync.Infrastructure.Repositories
         public async Task<User?> GetUserByIdIncludingDeletedForUpdateAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        }
+
+        public async Task<User?> GetUserByPhoneNumberAsync(string phone, CancellationToken cancellationToken)
+        {
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Phone == phone, cancellationToken);
         }
     }
 }

@@ -11,9 +11,11 @@ using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Application.Mappings.UserMappings;
 using TalentSync.Application.Services;
+using TalentSync.Application.Services.Recruitment;
 using TalentSync.Infrastructure.Persistence;
 using TalentSync.Infrastructure.Persistence.Seeders;
 using TalentSync.Infrastructure.Repositories;
+using TalentSync.Infrastructure.Repositories.Recruitment;
 using TalentSync.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +52,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<CookieHelper>();
+builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IJobRepository, JobRepository>();
 
 
 var jwtKey = builder.Configuration["JwtConfig:Key"] ?? throw new InvalidOperationException("JWT key is not configured in appsettings.json.");

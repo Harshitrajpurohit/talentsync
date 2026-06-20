@@ -10,18 +10,17 @@ namespace TalentSync.Api.Controllers.User
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<UsersController> _logger;
         private readonly IUserService _userService;
 
-        public UserController(ILogger<UserController> logger, IUserService userService)
+        public UsersController(ILogger<UsersController> logger, IUserService userService)
         {
             _logger = logger;
             _userService = userService;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {

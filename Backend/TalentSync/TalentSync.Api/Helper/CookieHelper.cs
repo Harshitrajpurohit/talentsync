@@ -12,7 +12,7 @@
                     HttpOnly = true,
                     Secure = false, // true in production
                     SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddMinutes(5)
+                    Expires = DateTime.UtcNow.AddDays(7)
                 });
         }
         public void DeleteRefreshTokenCookie(HttpResponse response)

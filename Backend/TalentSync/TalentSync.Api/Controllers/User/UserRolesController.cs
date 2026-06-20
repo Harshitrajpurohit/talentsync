@@ -8,12 +8,12 @@ namespace TalentSync.Api.Controllers.User
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserRoleController : ControllerBase
+    public class UserRolesController : ControllerBase
     {
 
         private readonly IUserRoleService _userRoleService;
-        private readonly ILogger<UserRoleController> _logger;
-        public UserRoleController(IUserRoleService userRoleService, ILogger<UserRoleController> logger)
+        private readonly ILogger<UserRolesController> _logger;
+        public UserRolesController(IUserRoleService userRoleService, ILogger<UserRolesController> logger)
         {
             _userRoleService = userRoleService;
             _logger = logger;

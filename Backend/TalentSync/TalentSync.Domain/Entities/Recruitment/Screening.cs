@@ -11,8 +11,8 @@ namespace TalentSync.Domain.Entities.Recruitment
         public Guid ApplicationId { get; set; }
         public ApplicationEntity Application { get; set; } = null!;
 
-        public Guid RecruiterId { get; set; }
-        public User.User Recruiter { get; set; } = null!;
+        public Guid ScreenedById { get; set; }
+        public User.User ScreenedBy { get; set; } = null!;
 
         public ScreeningResult Result { get; set; }
 

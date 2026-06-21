@@ -6,11 +6,10 @@ namespace TalentSync.Domain.Enums.Recruitment
 {
     public enum ApplicationStatus
     {
-        Pending,
         Submitted,
-        Reviewed,
-        Interview,
-        Accepted,
+        Screening,
+        InterviewScheduled,
+        Selected,
         Rejected
     }
 }

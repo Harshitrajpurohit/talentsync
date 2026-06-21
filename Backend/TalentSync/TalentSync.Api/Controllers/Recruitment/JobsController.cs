@@ -50,7 +50,7 @@ namespace TalentSync.Api.Controllers.Recruitment
         [HttpGet]
         public async Task<IActionResult> GetAllJobsAsync([FromQuery]PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            List<JobListDto> jobLists = await _jobService.GetAllJobsAsync(paginationRequest, cancellationToken);
+            PaginationResponse<JobListDto> jobLists = await _jobService.GetAllJobsAsync(paginationRequest, cancellationToken);
             return Ok(jobLists);
         }
 

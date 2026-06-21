@@ -21,12 +21,12 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
 
         public async Task<int> CountAsync(CancellationToken cancellationToken)
         {
-            return await _context.Jobs.CountAsync(j => !j.IsDeleted,cancellationToken);
+            return await _context.Jobs.AsNoTracking().CountAsync(j => !j.IsDeleted,cancellationToken);
         }
 
         public async Task<int> GetOpenJobsCountAsync(CancellationToken cancellationToken)
         {
-            return await _context.Jobs.CountAsync(j => !j.IsDeleted && j.Status == JobStatus.Open, cancellationToken);
+            return await _context.Jobs.AsNoTracking().CountAsync(j => !j.IsDeleted && j.Status == JobStatus.Open, cancellationToken);
         }
 
         public async Task<Job> AddAsync(Job job, CancellationToken cancellationToken)

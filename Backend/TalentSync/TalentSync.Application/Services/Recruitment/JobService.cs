@@ -51,11 +51,21 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<JobResponseDto>(newJob);
         }
 
-        public async Task<List<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<PaginationResponse<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             List<Job> jobs = await _jobRepository.GetPagedJobsAsync(paginationRequest, cancellationToken);
+            int totalCount = await _jobRepository.CountAsync(cancellationToken);
 
-            return _mapper.Map<List<JobListDto>>(jobs);
+            List<JobListDto> result = _mapper.Map<List<JobListDto>>(jobs);
+
+            return new PaginationResponse<JobListDto>
+            (
+                pageNumber : paginationRequest.PageNumber,
+                pageSize : paginationRequest.PageSize,
+                totalRecords : totalCount,
+                data : result
+            );
+
         }
 
         public async Task<JobResponseDto> GetJobByIdAsync(Guid id, CancellationToken cancellationToken)

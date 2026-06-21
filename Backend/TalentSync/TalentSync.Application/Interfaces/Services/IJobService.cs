@@ -12,7 +12,7 @@ namespace TalentSync.Application.Interfaces.Services
     {
         Task<JobResponseDto> CreateJobAsync(CreateJobDto jobDto, Guid HrId, CancellationToken cancellationToken);
         Task<bool> DeleteJobAsync(Guid id, Guid userId, CancellationToken cancellationToken);
-        Task<List<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<PaginationResponse<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<JobResponseDto> GetJobByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<JobResponseDto> UpdateJobAsync(Guid id, Guid userId,UpdateJobRequestDto updateJobRequestDto, CancellationToken cancellationToken);
     }

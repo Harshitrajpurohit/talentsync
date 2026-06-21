@@ -27,7 +27,7 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
 
             builder.Property(a => a.Status)
                    .HasConversion<string>()
-                   .HasDefaultValue(ApplicationStatus.Pending)
+                   .HasDefaultValue(ApplicationStatus.Submitted)
                    .IsRequired();
 
             // Job -> Applications (1:M)

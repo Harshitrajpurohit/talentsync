@@ -19,7 +19,7 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
             builder.Property(s => s.ApplicationId)
                    .IsRequired();
 
-            builder.Property(s => s.RecruiterId)
+            builder.Property(s => s.ScreenedById)
                    .IsRequired();
 
             builder.Property(s => s.Result)
@@ -41,13 +41,13 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
                    .OnDelete(DeleteBehavior.Restrict);
 
             // Recruiter -> Screenings (1:M)
-            builder.HasOne(s => s.Recruiter)
+            builder.HasOne(s => s.ScreenedBy)
                    .WithMany(u => u.Screenings)
-                   .HasForeignKey(s => s.RecruiterId)
+                   .HasForeignKey(s => s.ScreenedById)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(s => s.ApplicationId);
-            builder.HasIndex(s => s.RecruiterId);
+            builder.HasIndex(s => s.ScreenedById);
             builder.HasIndex(s => s.Result);
             builder.HasIndex(s => s.ScreeningDate);
 

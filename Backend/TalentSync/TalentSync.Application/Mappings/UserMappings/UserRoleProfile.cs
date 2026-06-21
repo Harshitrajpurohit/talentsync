@@ -14,6 +14,7 @@ namespace TalentSync.Application.Mappings.UserMappings
             CreateMap<UserRoleRequestDTO, UserRole>();
             CreateMap<UserRole, UserRoleResponseWithExtraDto>();
 
+
         }
     }
 }

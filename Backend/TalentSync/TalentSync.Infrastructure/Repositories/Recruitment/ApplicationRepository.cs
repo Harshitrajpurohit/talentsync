@@ -87,6 +87,7 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
         {
             return await _context.Applications
                 .Include(a => a.Job)
+                .Include(a => a.Candidate)
                 .Where(a => a.CandidateId == candidateId && !a.IsDeleted)
                 .OrderByDescending(a => a.SubmittedDate)
                 .AsNoTracking()

@@ -60,7 +60,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(applications);
         }
 
-        [Authorize(Roles = "Candidate")]
+        [Authorize(Roles = "Candidate,Admin")]
         [HttpGet("candidate")]
         public async Task<IActionResult> GetByCandidate(CancellationToken cancellationToken)
         {

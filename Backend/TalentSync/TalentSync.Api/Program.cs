@@ -58,6 +58,9 @@ builder.Services.AddScoped<IApplicationService, ApplicationService>();
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 builder.Services.AddScoped<IScreeningService, ScreeningService>();
 builder.Services.AddScoped<IScreeningRepository, ScreeningRepository>();
+builder.Services.AddScoped<IInterviewService, InterviewService>();
+builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
+
 
 
 var jwtKey = builder.Configuration["JwtConfig:Key"] ?? throw new InvalidOperationException("JWT key is not configured in appsettings.json.");

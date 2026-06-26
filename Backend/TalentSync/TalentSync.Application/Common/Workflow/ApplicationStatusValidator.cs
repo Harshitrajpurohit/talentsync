@@ -29,6 +29,14 @@ namespace TalentSync.Application.Common.Workflow
                 ApplicationStatus.InterviewScheduled,
                 new[]
                 {
+                    ApplicationStatus.InterviewCompleted,
+                    ApplicationStatus.Rejected
+                }
+            },
+            {
+                ApplicationStatus.InterviewCompleted,
+                new[]
+                {
                     ApplicationStatus.Selected,
                     ApplicationStatus.Rejected
                 }

@@ -15,6 +15,7 @@ using TalentSync.Application.Services.Recruitment;
 using TalentSync.Infrastructure.Persistence;
 using TalentSync.Infrastructure.Persistence.Seeders;
 using TalentSync.Infrastructure.Repositories;
+using TalentSync.Infrastructure.Repositories.Employees;
 using TalentSync.Infrastructure.Repositories.Recruitment;
 using TalentSync.Infrastructure.Security;
 
@@ -60,7 +61,9 @@ builder.Services.AddScoped<IScreeningService, ScreeningService>();
 builder.Services.AddScoped<IScreeningRepository, ScreeningRepository>();
 builder.Services.AddScoped<IInterviewService, InterviewService>();
 builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
-
+builder.Services.AddScoped<ISelectionService, SelectionService>();
+builder.Services.AddScoped<ISelectionRepository, SelectionRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 
 var jwtKey = builder.Configuration["JwtConfig:Key"] ?? throw new InvalidOperationException("JWT key is not configured in appsettings.json.");

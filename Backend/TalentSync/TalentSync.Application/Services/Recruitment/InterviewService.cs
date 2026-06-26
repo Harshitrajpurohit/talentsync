@@ -171,7 +171,7 @@ namespace TalentSync.Application.Services.Recruitment
                 switch (updateInterviewStatus.Status)
                 {
                     case InterviewStatus.Passed:
-                        application.Status = ApplicationStatus.Selected;
+                        application.Status = ApplicationStatus.InterviewCompleted;
                         application.UpdatedAt = DateTime.UtcNow;
                         break;
                     case InterviewStatus.Failed:

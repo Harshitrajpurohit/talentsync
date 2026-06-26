@@ -9,6 +9,7 @@ namespace TalentSync.Domain.Enums.Recruitment
         Submitted,
         Screening,
         InterviewScheduled,
+        InterviewCompleted,
         Selected,
         Rejected
     }

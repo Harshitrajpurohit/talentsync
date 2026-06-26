@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Recruitment\at\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

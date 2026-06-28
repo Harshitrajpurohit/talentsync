@@ -120,6 +120,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             if (application.Status is
                     ApplicationStatus.InterviewScheduled or
+                    ApplicationStatus.InterviewCompleted or
                     ApplicationStatus.Selected or
                     ApplicationStatus.Rejected)
                 {

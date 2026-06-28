@@ -24,10 +24,7 @@ namespace TalentSync.Api.Controllers.User
         {
             _logger.LogInformation("Creating user role for user {UserId} with role {RoleId}", createUserRoleDTO.UserId, createUserRoleDTO.RoleId);
             UserRoleResponseDto userRole = await _userRoleService.CreateUserRoleAsync(createUserRoleDTO, cancellationToken);
-            return CreatedAtAction(
-                        nameof(GetUserRoleByIdAsync),
-                        new { id = userRole.Id },
-                        userRole);
+            return StatusCode(StatusCodes.Status201Created, userRole);
         }
 
         [HttpGet("{id}")]

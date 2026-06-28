@@ -42,7 +42,7 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
 
         public async Task<ApplicationEntity?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await _context.Applications.AsNoTracking()
+            return await _context.Applications
                 .Include(a => a.Job)
                 .Include(a => a.Candidate)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, cancellationToken);

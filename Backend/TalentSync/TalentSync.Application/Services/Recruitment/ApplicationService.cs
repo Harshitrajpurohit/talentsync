@@ -20,17 +20,29 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IUserRepository _userRepository;
         private readonly IJobRepository _jobRepository;
         private readonly IMapper _mapper;
+        private readonly IResumeRepository _resumeRepository;
 
-        public ApplicationService(IApplicationRepository applicationRepository, IUserRepository userRepository, IMapper mapper, IJobRepository jobRepository)
+        public ApplicationService(IApplicationRepository applicationRepository,
+            IUserRepository userRepository,
+            IMapper mapper,
+            IJobRepository jobRepository,
+            IResumeRepository resumeRepository)
         {
             _applicationRepository = applicationRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _jobRepository = jobRepository;
+            _resumeRepository = resumeRepository;
         }
 
         public async Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto createApplicationDto,Guid candidateId, CancellationToken cancellationToken)
         {
+            Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
+            if (resume == null)
+            {
+                throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
+            }
+
             ApplicationEntity application = _mapper.Map<ApplicationEntity>(createApplicationDto);
 
             Job? job = await _jobRepository.GetJobByIdAsync(createApplicationDto.JobId, cancellationToken);
@@ -130,7 +142,7 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new KeyNotFoundException("Application Not Available");
             }
 
-            if(ApplicationStatusValidator.IsValidTransition(application.Status, updateApplicationRequestDto.Status))
+            if(!ApplicationStatusValidator.IsValidTransition(application.Status, updateApplicationRequestDto.Status))
             {
                 throw new InvalidOperationException($"Cannot change application status from {application.Status} to {updateApplicationRequestDto.Status}");
             }

@@ -34,13 +34,11 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
                    .IsRequired();
 
 
-            // Application -> Screenings (1:M)
             builder.HasOne(s => s.Application)
                    .WithMany(a => a.Screenings)
                    .HasForeignKey(s => s.ApplicationId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Recruiter -> Screenings (1:M)
             builder.HasOne(s => s.ScreenedBy)
                    .WithMany(u => u.Screenings)
                    .HasForeignKey(s => s.ScreenedById)

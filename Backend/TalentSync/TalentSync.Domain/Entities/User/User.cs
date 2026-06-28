@@ -26,11 +26,10 @@ namespace TalentSync.Domain.Entities.User
 
         public ICollection<ApplicationEntity> Applications { get; set; } = new List<ApplicationEntity>();
 
-        public ICollection<Resume> Resumes { get; set; } = new List<Resume>();
-
         public ICollection<Screening> Screenings { get; set; } = new List<Screening>();
         public ICollection<Interview> Interviews { get; set; } = new List<Interview>();
 
+        public Resume? Resume { get; set; }
         public Employee? Employee { get; set; }
 
     }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using TalentSync.Api.Helper;
 using TalentSync.Api.Middleware;
+using TalentSync.Application.Common.Settings;
 using TalentSync.Application.Interfaces;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
@@ -18,6 +19,7 @@ using TalentSync.Infrastructure.Repositories;
 using TalentSync.Infrastructure.Repositories.Employees;
 using TalentSync.Infrastructure.Repositories.Recruitment;
 using TalentSync.Infrastructure.Security;
+using TalentSync.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,9 @@ builder.Services.AddControllers()
             .Add(new JsonStringEnumConverter());
     });
 
+// Cloudinary Configuration
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 // register auto mapper
 builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
@@ -64,6 +69,8 @@ builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<ISelectionService, SelectionService>();
 builder.Services.AddScoped<ISelectionRepository, SelectionRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
+builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 
 
 var jwtKey = builder.Configuration["JwtConfig:Key"] ?? throw new InvalidOperationException("JWT key is not configured in appsettings.json.");
@@ -98,9 +105,6 @@ var app = builder.Build();
 
 
 app.UseGlobalExceptionMiddleware();
-
-
-// Use the global exception handling middleware
 
 
 

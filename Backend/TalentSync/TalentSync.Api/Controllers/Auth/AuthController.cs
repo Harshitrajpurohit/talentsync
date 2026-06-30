@@ -40,14 +40,7 @@ namespace TalentSync.Api.Controllers.Auth
             _logger.LogInformation("Try Login user with Email : {Email}", userLoginRequestdto.Email);
             UserLoginResponseDto userLoginResponseDto = await _authService.LoginAsync(userLoginRequestdto, cancellationToken);
 
-            Response.Cookies.Append("refreshToken", userLoginResponseDto.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = false,
-                    SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddHours(5)
-                });
+            _cookieHelper.SetRefreshTokenCookie(Response, userLoginResponseDto.RefreshToken);
 
             return Ok(new
             {

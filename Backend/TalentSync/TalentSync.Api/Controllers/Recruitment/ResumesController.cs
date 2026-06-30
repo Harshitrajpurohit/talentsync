@@ -14,19 +14,23 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class ResumesController : ControllerBase
     {
         private readonly IResumeService _resumeService;
+        private readonly ILogger<ResumesController> _logger;
 
-        public ResumesController(IResumeService resumeService)
+        public ResumesController(IResumeService resumeService, ILogger<ResumesController> logger)
         {
             _resumeService = resumeService;
+            _logger = logger;
         }
 
         [Authorize(Roles = "Candidate")]
         [HttpPost]
         public async Task<IActionResult> UploadResumeAsync([FromForm] IFormFile resume, CancellationToken cancellationToken)
         {
+            Console.WriteLine("1234567890");
+            _logger.LogInformation("resume addd started");
             if (resume == null || resume.Length == 0)
                 return BadRequest("No file provided.");
-
+            _logger.LogInformation("resume addd started");
             var candidateId = User.GetUserId();
 
             using var stream = resume.OpenReadStream();
@@ -37,9 +41,10 @@ namespace TalentSync.Api.Controllers.Recruitment
         }
 
         [Authorize(Roles = "Candidate")]
-        [HttpGet("me")]
+        [HttpGet("my")]
         public async Task<IActionResult> GetMyResume(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("resume getting started");
             var candidateId = User.GetUserId();
 
             var result = await _resumeService.GetByCandidateIdAsync(candidateId, cancellationToken);

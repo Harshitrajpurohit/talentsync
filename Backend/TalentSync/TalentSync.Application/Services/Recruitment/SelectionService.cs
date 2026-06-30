@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Workflow;
+using TalentSync.Application.DTOs.Notifications;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Application.Interfaces;
 using TalentSync.Application.Interfaces.Repositories;
@@ -11,6 +12,7 @@ using TalentSync.Domain.Entities.HumanResources;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Entities.User;
 using TalentSync.Domain.Enums.Employees;
+using TalentSync.Domain.Enums.Notifications;
 using TalentSync.Domain.Enums.Recruitment;
 
 namespace TalentSync.Application.Services.Recruitment
@@ -21,11 +23,11 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IMapper _mapper;
         private readonly IApplicationRepository _applicationRepository;
         private readonly IInterviewRepository _interviewRepository;
-        private readonly IScreeningRepository _screeningRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly INotificationService _notificationService;
 
         public SelectionService(ISelectionRepository selectionRepository,
             IMapper mapper,
@@ -35,22 +37,29 @@ namespace TalentSync.Application.Services.Recruitment
             IUnitOfWork unitOfWork,
             IEmployeeRepository employeeRepository,
             IUserRoleRepository userRoleRepository,
-            IRoleRepository roleRepository
+            IRoleRepository roleRepository,
+            INotificationService notificationService
             )
         {
             _selectionRepository = selectionRepository;
             _mapper = mapper;
             _applicationRepository = applicationRepository;
             _interviewRepository = interviewRepository;
-            _screeningRepository = screeningRepository;
             _unitOfWork = unitOfWork;
             _employeeRepository = employeeRepository;
             _userRoleRepository = userRoleRepository;
             _roleRepository = roleRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<SelectionResponseDto> MakeDecisionAsync(CreateSelectionDecisionDto createSelectionDecision, CancellationToken cancellationToken)
         {
+            if (createSelectionDecision.Decision == SelectionDecision.Pending)
+            {
+                throw new InvalidOperationException(
+                    "Selection decision cannot be Pending.");
+            }
+
             ApplicationEntity application = await _applicationRepository
                 .GetByIdWithDetailsAsync(createSelectionDecision.ApplicationId, cancellationToken)
                 ?? throw new KeyNotFoundException("Application not found.");
@@ -95,7 +104,7 @@ namespace TalentSync.Application.Services.Recruitment
             selection.SelectionDate = DateTime.UtcNow;
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-
+            Selection newSelection;
             try
             {
                 if (createSelectionDecision.Decision == SelectionDecision.Selected)
@@ -116,7 +125,7 @@ namespace TalentSync.Application.Services.Recruitment
 
                 application.UpdatedAt = DateTime.UtcNow;
 
-                Selection newSelection = await _selectionRepository.AddAsync(
+                newSelection = await _selectionRepository.AddAsync(
                     selection,
                     cancellationToken);
 
@@ -125,13 +134,16 @@ namespace TalentSync.Application.Services.Recruitment
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-                return _mapper.Map<SelectionResponseDto>(newSelection);
+                
             }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
+
+            await SendSelectionNotificationAsync(application, createSelectionDecision.Decision, cancellationToken);
+            return _mapper.Map<SelectionResponseDto>(newSelection);
         }
 
         public async Task<SelectionWithDetailsResponseDto?> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken)
@@ -180,6 +192,30 @@ namespace TalentSync.Application.Services.Recruitment
                 userRole.UpdatedAt = DateTime.UtcNow;
                 _userRoleRepository.Update(userRole);
             }
+        }
+
+
+        // private
+
+        private async Task SendSelectionNotificationAsync(ApplicationEntity application, SelectionDecision decision, CancellationToken cancellationToken)
+        {
+
+            await _notificationService.SendAsync(
+                new CreateNotificationDto
+                {
+                    UserId = application.CandidateId,
+                    Title = decision == SelectionDecision.Selected
+                        ? "Congratulations! You're Selected"
+                        : "Application Update",
+
+                    Message = decision == SelectionDecision.Selected
+                        ? $"Congratulations! You have been selected for the position of '{application.Job.Title}'. Our HR team will reach out shortly regarding your offer and onboarding process."
+                        : $"Thank you for your interest in '{application.Job.Title}'. Although you were not selected for this position, we appreciate the time you invested in the recruitment process and encourage you to apply for future opportunities.",
+
+                    Category = NotificationCategory.Recruitment,
+                    Channel = NotificationChannel.InApp
+                },
+                cancellationToken);
         }
     }
 }

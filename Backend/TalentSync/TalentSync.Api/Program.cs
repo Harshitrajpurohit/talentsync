@@ -1,22 +1,26 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
 using TalentSync.Api.Helper;
 using TalentSync.Api.Middleware;
 using TalentSync.Application.Common.Settings;
 using TalentSync.Application.Interfaces;
+using TalentSync.Application.Interfaces.Notifications;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Application.Mappings.UserMappings;
 using TalentSync.Application.Services;
+using TalentSync.Application.Services.Notifications;
 using TalentSync.Application.Services.Recruitment;
+using TalentSync.Infrastructure.Notifications;
+using TalentSync.Infrastructure.Notifications.SignalR.Hubs;
 using TalentSync.Infrastructure.Persistence;
 using TalentSync.Infrastructure.Persistence.Seeders;
 using TalentSync.Infrastructure.Repositories;
 using TalentSync.Infrastructure.Repositories.Employees;
+using TalentSync.Infrastructure.Repositories.Notifications;
 using TalentSync.Infrastructure.Repositories.Recruitment;
 using TalentSync.Infrastructure.Security;
 using TalentSync.Infrastructure.Services;
@@ -38,6 +42,11 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters
             .Add(new JsonStringEnumConverter());
     });
+
+
+// signalR 
+builder.Services.AddSignalR();
+
 
 // Cloudinary Configuration
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
@@ -72,6 +81,11 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
+
+
 
 var jwtKey = builder.Configuration["JwtConfig:Key"] ?? throw new InvalidOperationException("JWT key is not configured in appsettings.json.");
 var issuer = builder.Configuration["JwtConfig:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured in appsettings.json.");
@@ -94,7 +108,28 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
+    // in SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs/notifications"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
+
+
 
 builder.Services.AddAuthorization();
 
@@ -134,5 +169,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

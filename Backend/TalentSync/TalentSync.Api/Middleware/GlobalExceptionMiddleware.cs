@@ -26,6 +26,7 @@ namespace TalentSync.Api.Middleware
             Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
+                _logger.LogInformation("exception handler addd started");
                 await _next(httpContext);
             }
             catch (Exception ex) {

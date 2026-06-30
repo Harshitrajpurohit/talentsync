@@ -167,7 +167,7 @@ namespace TalentSync.Application.Services
                 {
                     UserId = user.Id,
                     Token = newRefreshToken,
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(5),
+                    ExpiresAt = DateTime.UtcNow.AddDays(7),
                     IsRevoked = false
                 };
 

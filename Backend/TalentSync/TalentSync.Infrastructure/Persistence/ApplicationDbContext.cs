@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TalentSync.Domain.Entities.Auth;
 using TalentSync.Domain.Entities.HumanResources;
+using TalentSync.Domain.Entities.Notifications;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Entities.User;
 
@@ -34,6 +35,6 @@ namespace TalentSync.Infrastructure.Persistence
         public DbSet<Interview> Interviews { get; set; }
         public DbSet<Selection> Selections { get; set; }
         public DbSet<Employee> Employees { get; set; }
-
+        public DbSet<Notification> Notifications { get; set; }
     }
 }

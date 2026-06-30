@@ -9,7 +9,7 @@ namespace TalentSync.Application.DTOs.Recruitment
     public class UpdateScreeningRequestDto
     {
         [Required]
-        public ScreeningResult? Result { get; set; }
+        public ScreeningResult Result { get; set; }
         [Required]
         [MaxLength(1000)]
         public string? Notes { get; set; }

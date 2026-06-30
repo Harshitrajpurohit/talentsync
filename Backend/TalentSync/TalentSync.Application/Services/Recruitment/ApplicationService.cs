@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.Common.Workflow;
+using TalentSync.Application.DTOs.Notifications;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
@@ -21,27 +22,31 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IJobRepository _jobRepository;
         private readonly IMapper _mapper;
         private readonly IResumeRepository _resumeRepository;
+        
+        private readonly INotificationService _notificationService;
 
         public ApplicationService(IApplicationRepository applicationRepository,
             IUserRepository userRepository,
             IMapper mapper,
             IJobRepository jobRepository,
-            IResumeRepository resumeRepository)
+            IResumeRepository resumeRepository, 
+            INotificationService notificationService)
         {
             _applicationRepository = applicationRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _jobRepository = jobRepository;
             _resumeRepository = resumeRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto createApplicationDto,Guid candidateId, CancellationToken cancellationToken)
         {
-            Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
-            if (resume == null)
-            {
-                throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
-            }
+            //Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
+            //if (resume == null)
+            //{
+            //    throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
+            //}
 
             ApplicationEntity application = _mapper.Map<ApplicationEntity>(createApplicationDto);
 
@@ -78,7 +83,18 @@ namespace TalentSync.Application.Services.Recruitment
 
             ApplicationEntity newApplication = await _applicationRepository.AddAsync(application, cancellationToken);
             await _applicationRepository.SaveChangesAsync(cancellationToken);
+
+            CreateNotificationDto createNotification = new CreateNotificationDto
+            {
+                UserId = user.Id,
+                Title = $"Application Submitted.",
+                Message = $"Application Submitted for {job.Title}",
+                Category = Domain.Enums.Notifications.NotificationCategory.Recruitment,
+                Channel = Domain.Enums.Notifications.NotificationChannel.InApp
+            };
             
+            await _notificationService.SendAsync(createNotification, cancellationToken);
+
             return _mapper.Map<ApplicationResponseDto>(newApplication);
         }
 

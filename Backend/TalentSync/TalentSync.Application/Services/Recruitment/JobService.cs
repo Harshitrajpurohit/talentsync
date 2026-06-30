@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
+using TalentSync.Application.DTOs.Notifications;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Entities.User;
+using TalentSync.Domain.Enums.Notifications;
 using TalentSync.Domain.Enums.Recruitment;
 
 namespace TalentSync.Application.Services.Recruitment
@@ -18,12 +20,14 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IJobRepository _jobRepository;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly INotificationService _notificationService;
 
-        public JobService(IJobRepository jobRepository, IMapper mapper, IUserRepository userRepository)
+        public JobService(IJobRepository jobRepository, IMapper mapper, IUserRepository userRepository, INotificationService notificationService)
         {
             _jobRepository = jobRepository;
             _mapper = mapper;
             _userRepository = userRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<JobResponseDto> CreateJobAsync(CreateJobDto jobDto, Guid HrId, CancellationToken cancellationToken)
@@ -47,6 +51,18 @@ namespace TalentSync.Application.Services.Recruitment
 
             Job newJob = await _jobRepository.AddAsync(job, cancellationToken);
             await _jobRepository.SaveChangesAsync(cancellationToken);
+
+
+            await _notificationService.SendAsync(
+                        new CreateNotificationDto
+                        {
+                            UserId = HrId,
+                            Title = "Job Posted",
+                            Message = $"Your job '{job.Title}' has been published successfully.",
+                            Category = NotificationCategory.Recruitment,
+                            Channel = NotificationChannel.InApp
+                        },
+                        cancellationToken);
 
             return _mapper.Map<JobResponseDto>(newJob);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TalentSync.Domain.Common;
 using TalentSync.Domain.Entities.HumanResources;
+using TalentSync.Domain.Entities.Notifications;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Enums.User;
 
@@ -31,6 +32,8 @@ namespace TalentSync.Domain.Entities.User
 
         public Resume? Resume { get; set; }
         public Employee? Employee { get; set; }
+
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     }
 }

@@ -8,6 +8,7 @@ using TalentSync.Application.Interfaces;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Domain.Entities.Recruitment;
+using Microsoft.Extensions.Logging;
 
 namespace TalentSync.Application.Services.Recruitment
 {
@@ -17,25 +18,28 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ResumeService> _logger;
 
-        public ResumeService(IResumeRepository resumeRepository, ICloudinaryService cloudinaryService, IMapper mapper, IUnitOfWork unitOfWork)
+        public ResumeService(IResumeRepository resumeRepository, ICloudinaryService cloudinaryService, IMapper mapper, IUnitOfWork unitOfWork, ILogger<ResumeService> logger)
         {
             _resumeRepository = resumeRepository;
             _cloudinaryService = cloudinaryService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
 
         public async Task<ResumeResponseDto> UploadResumeAsync(Guid candidateId, Stream stream, string fileName, string contentType, long fileSize, CancellationToken cancellationToken)
         {
-
+             _logger.LogInformation("Uploading resume for candidate with ID: {CandidateId}", candidateId);
             ValidateResume(stream, fileName, contentType, fileSize);
 
             bool isExists = await _resumeRepository.ExistsByCandidateIdAsync(candidateId, cancellationToken);
 
             if (isExists)
             {
+                _logger.LogWarning("Resume already exists for candidate with ID: {CandidateId}", candidateId);
                 throw new InvalidOperationException("Resume already available, chnage the resume");
             }
 
@@ -48,10 +52,12 @@ namespace TalentSync.Application.Services.Recruitment
 
                 Resume newResume = await _resumeRepository.AddAsync(resume, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Resume uploaded successfully for candidate with ID: {CandidateId}", candidateId);
                 return _mapper.Map<ResumeResponseDto>(newResume);
             }
             catch
             {
+                _logger.LogError("Error occurred while saving resume for candidate with ID: {CandidateId}. Deleting uploaded file from Cloudinary.", candidateId);
                 await _cloudinaryService.DeleteResumeAsync(cloudinaryUploadResult.PublicId);
                 throw;
             }
@@ -72,7 +78,7 @@ namespace TalentSync.Application.Services.Recruitment
 
         public async Task<ResumeResponseDto> ReplaceResumeAsync(Guid id, Stream stream, string fileName, string contentType, long fileSize, CancellationToken cancellationToken)
         {
-
+            _logger.LogInformation("Replacing resume with ID: {ResumeId}", id);
             ValidateResume(stream, fileName, contentType, fileSize);
 
             Resume? resume = await _resumeRepository.GetByIdAsync(id, cancellationToken);
@@ -94,10 +100,12 @@ namespace TalentSync.Application.Services.Recruitment
                 _resumeRepository.Update(resume);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _cloudinaryService.DeleteResumeAsync(oldPublicId);
+                _logger.LogInformation("Resume with ID: {ResumeId} replaced successfully.", id);
                 return _mapper.Map<ResumeResponseDto>(resume);
             }
             catch
             {
+                _logger.LogError("Error occurred while replacing resume with ID: {ResumeId}. Deleting newly uploaded file from Cloudinary.", id);
                 await _cloudinaryService.DeleteResumeAsync(cloudinaryUploadResult.PublicId);
                 throw;
             }

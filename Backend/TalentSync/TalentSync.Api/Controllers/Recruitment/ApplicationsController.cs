@@ -13,12 +13,10 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class ApplicationsController : ControllerBase
     {
         private readonly IApplicationService _applicationService;
-        private readonly ILogger<ApplicationsController> _logger;
 
-        public ApplicationsController(IApplicationService applicationService, ILogger<ApplicationsController> logger)
+        public ApplicationsController(IApplicationService applicationService)
         {
             _applicationService = applicationService;
-            _logger = logger;
         }
 
         [Authorize(Roles = "Candidate")]
@@ -29,8 +27,7 @@ namespace TalentSync.Api.Controllers.Recruitment
                 return BadRequest(ModelState);
             }
             var candidateId = User.GetUserId();
-            _logger.LogInformation("Candidate {CandidateId} applied for Job {JobId}", candidateId, dto.JobId);
-
+            
             ApplicationResponseDto application = await _applicationService.CreateApplicationAsync(dto, candidateId, cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, application);

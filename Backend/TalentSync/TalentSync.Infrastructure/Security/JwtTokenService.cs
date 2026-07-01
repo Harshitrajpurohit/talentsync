@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,11 @@ namespace TalentSync.Infrastructure.Security
     public class JwtTokenService : IJwtTokenService
     {
         private readonly IConfiguration _configuration;
-        public JwtTokenService(IConfiguration configuration)
+        private readonly ILogger<JwtTokenService> _logger;
+        public JwtTokenService(IConfiguration configuration, ILogger<JwtTokenService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         public string GenerateAccessToken(User user, RoleName? role)
@@ -58,6 +61,7 @@ namespace TalentSync.Infrastructure.Security
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            _logger.LogInformation("Access token generated successfully for user {UserId}.", user.Id);
             return tokenHandler.WriteToken(token);
         }
 

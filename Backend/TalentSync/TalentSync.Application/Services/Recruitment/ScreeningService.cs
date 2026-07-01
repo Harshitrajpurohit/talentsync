@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,27 +23,27 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IApplicationRepository _applicationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly INotificationService _notificationService;
-        public ScreeningService(IScreeningRepository screeningRepository, IMapper mapper, IApplicationRepository applicationRepository, IUnitOfWork unitOfWork, INotificationService notificationService)
+        private readonly ILogger<ScreeningService> _logger;
+        public ScreeningService(IScreeningRepository screeningRepository, IMapper mapper, IApplicationRepository applicationRepository, IUnitOfWork unitOfWork, INotificationService notificationService, ILogger<ScreeningService> logger)
         {
             _screeningRepository = screeningRepository;
             _mapper = mapper;
             _applicationRepository = applicationRepository;
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         public async Task<ScreeningResponseDto> CreateScreeningAsync(CreateScreeningRequestDto screeningRequestDto, Guid screenedById, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Creating screening for application {ApplicationId} by user {ScreenedById}", screeningRequestDto.ApplicationId, screenedById);
 
-            ApplicationEntity? application = await _applicationRepository.GetByIdAsync(screeningRequestDto.ApplicationId, cancellationToken);
+            ApplicationEntity application = await _applicationRepository.GetByIdAsync(screeningRequestDto.ApplicationId, cancellationToken) ?? throw new KeyNotFoundException($"Application not found.");
 
-            if (application == null)
-            {
-                throw new KeyNotFoundException($"Application not found.");
-            }
 
             if (!ApplicationStatusValidator.IsValidTransition(application.Status, ApplicationStatus.Screening))
             {
+                _logger.LogWarning("Invalid status transition from {CurrentStatus} to {NewStatus} for application {ApplicationId}", application.Status, ApplicationStatus.Screening, screeningRequestDto.ApplicationId);
                 throw new InvalidOperationException(
                     $"Cannot screen an application with status '{application.Status}'.");
             }
@@ -81,9 +82,11 @@ namespace TalentSync.Application.Services.Recruitment
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
 
+                _logger.LogInformation("Screening created successfully for application {ApplicationId} with result {Result}", screeningRequestDto.ApplicationId, screeningRequestDto.Result);
             }
             catch
             {
+                _logger.LogError("Error occurred while creating screening for application {ApplicationId}. Rolling back transaction.", screeningRequestDto.ApplicationId);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
@@ -94,11 +97,7 @@ namespace TalentSync.Application.Services.Recruitment
 
         public async Task<ScreeningResponseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            Screening? screening = await _screeningRepository.GetByIdAsync(id, cancellationToken);
-            if (screening == null)
-            {
-                throw new KeyNotFoundException("Screening Not Found");
-            }
+            Screening screening = await _screeningRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Screening Not Found");
 
             return _mapper.Map<ScreeningResponseDto>(screening);
         }
@@ -106,21 +105,15 @@ namespace TalentSync.Application.Services.Recruitment
         public async Task<ScreeningResponseDto> GetByApplicationIdAsync(Guid applicationId, Guid authorizedUserId, CancellationToken cancellationToken)
         {
 
-            Screening? screening = await _screeningRepository.GetByApplicationIdAsync(applicationId, cancellationToken);
-            if (screening == null)
-            {
-                throw new KeyNotFoundException("Screening Not Found with Application");
-            }
+            Screening screening = await _screeningRepository.GetByApplicationIdAsync(applicationId, cancellationToken) ?? throw new KeyNotFoundException("Screening Not Found with Application");
+
             return _mapper.Map<ScreeningResponseDto>(screening);
         }
 
         public async Task<ScreeningResponseDto> UpdateScreeningAsync(Guid id, UpdateScreeningRequestDto updateScreeningRequest, CancellationToken cancellationToken)
         {
-            Screening? screening = await _screeningRepository.GetByIdAsync(id, cancellationToken);
-            if (screening is null)
-            {
-                throw new KeyNotFoundException("Screening Not Found");
-            }
+            _logger.LogInformation("Updating screening {ScreeningId} with new result {NewResult}", id, updateScreeningRequest.Result);
+            Screening screening = await _screeningRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Screening Not Found");
 
             if (screening.Result == updateScreeningRequest.Result)
             {
@@ -141,12 +134,14 @@ namespace TalentSync.Application.Services.Recruitment
                     ApplicationStatus.Selected or
                     ApplicationStatus.Rejected)
             {
+                _logger.LogWarning("Cannot update screening for application {ApplicationId} because it is in '{CurrentStatus}' state", application.Id, application.Status);
                 throw new InvalidOperationException(
                     $"Cannot update screening because application is in '{application.Status}' state.");
             }
 
             if (updateScreeningRequest.Result == ScreeningResult.Pending)
             {
+
                 throw new InvalidOperationException(
                     "screenings cannot be reverted to Pending.");
             }
@@ -173,10 +168,11 @@ namespace TalentSync.Application.Services.Recruitment
                 _applicationRepository.Update(application);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
-
+                _logger.LogInformation("Screening {ScreeningId} updated successfully with new result {NewResult}", id, updateScreeningRequest.Result);
             }
             catch
             {
+                _logger.LogError("Error occurred while updating screening {ScreeningId}. Rolling back transaction.", id);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }

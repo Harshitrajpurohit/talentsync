@@ -9,6 +9,7 @@ using TalentSync.Domain.Entities.User;
 using TalentSync.Application.Mappings.UserMappings;
 using AutoMapper;
 using TalentSync.Domain.Enums.User;
+using Microsoft.Extensions.Logging;
 
 namespace TalentSync.Application.Services
 {
@@ -16,10 +17,12 @@ namespace TalentSync.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        private readonly ILogger<UserService> _logger;
+        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
 
@@ -28,7 +31,8 @@ namespace TalentSync.Application.Services
             int totalUsers = await _userRepository.CountActiveUsersAsync(cancellationToken);
 
             List<UserWithRolesResponseDto> users = await _userRepository.GetAllUsersAsync(paginationRequest, cancellationToken);
-
+            
+            _logger.LogInformation("Retrieved all users.");
             return new PaginationResponse<UserWithRolesResponseDto>(
                 pageNumber: paginationRequest.PageNumber,
                 pageSize: paginationRequest.PageSize,
@@ -45,7 +49,6 @@ namespace TalentSync.Application.Services
             {
                 throw new KeyNotFoundException("User Not Found.");
             }
-
             return _mapper.Map<UserResponseDto>(user);
         }
         public async Task<UserResponseDto> UpdateUserAsync(Guid id, UpdateUserDTO updateUserDTO, CancellationToken cancellationToken)
@@ -64,6 +67,10 @@ namespace TalentSync.Application.Services
                 var existingUser = await _userRepository.GetUserByEmailIncludingDeletedAsync(updateUserDTO.Email, cancellationToken);
                 if (existingUser != null && existingUser.Id != id)
                 {
+                    _logger.LogWarning(
+                            "Attempt to update user {UserId} with duplicate email {Email}.",
+                            id,
+                            updateUserDTO.Email);
                     throw new InvalidOperationException("A user with this email already exists.");
                 }
             }
@@ -72,7 +79,7 @@ namespace TalentSync.Application.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.SaveChangesAsync(cancellationToken);
-
+            _logger.LogInformation("User updated successfully with ID {UserId}.", user.Id);
             return _mapper.Map<UserResponseDto>(user);
 
         }
@@ -87,7 +94,7 @@ namespace TalentSync.Application.Services
             user.IsDeleted = true;
             user.UpdatedAt = DateTime.UtcNow;
             await _userRepository.SaveChangesAsync(cancellationToken);
-
+            _logger.LogInformation("User deleted successfully with ID {UserId}.", user.Id);
             return true;
         }
 
@@ -106,7 +113,7 @@ namespace TalentSync.Application.Services
             user.IsDeleted = false;
             user.UpdatedAt = DateTime.UtcNow;
             await _userRepository.SaveChangesAsync(cancellationToken);
-
+            _logger.LogInformation("User restored successfully with ID {UserId}.", user.Id);
             return _mapper.Map<UserResponseDto>(user);
         }
 
@@ -126,7 +133,7 @@ namespace TalentSync.Application.Services
             user.Status = newStatus;
             user.UpdatedAt = DateTime.UtcNow;
             await _userRepository.SaveChangesAsync(cancellationToken);
-
+            _logger.LogInformation("User status updated successfully with ID {UserId}.", user.Id);
             return _mapper.Map<UserResponseDto>(user);
         }
     }

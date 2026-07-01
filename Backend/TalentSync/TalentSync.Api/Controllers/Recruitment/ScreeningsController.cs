@@ -13,12 +13,9 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class ScreeningsController : ControllerBase
     {
         private readonly IScreeningService _screeningService;
-        private readonly ILogger<ScreeningsController> _logger;
-
-        public ScreeningsController(IScreeningService screeningService, ILogger<ScreeningsController> logger)
+        public ScreeningsController(IScreeningService screeningService)
         {
             _screeningService = screeningService;
-            _logger = logger;
         }
 
         [HttpPost]

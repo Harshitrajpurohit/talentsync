@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TalentSync.Api.Extensions;
 using TalentSync.Application.Common.Pagination;
-using TalentSync.Application.DTOs.Notifications;
 using TalentSync.Application.Interfaces.Services;
 
 namespace TalentSync.Api.Controllers.Notifications
@@ -13,12 +12,10 @@ namespace TalentSync.Api.Controllers.Notifications
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
-        private readonly ILogger<NotificationsController> _logger;
 
-        public NotificationsController(INotificationService notificationService, ILogger<NotificationsController> logger)
+        public NotificationsController(INotificationService notificationService)
         {
             _notificationService = notificationService;
-            _logger = logger;
         }
 
         [Authorize]

@@ -12,11 +12,9 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class SelectionsController : ControllerBase
     {
         private readonly ISelectionService _selectionService;
-        private readonly ILogger<SelectionsController> _mapper;
-        public SelectionsController(ISelectionService selectionService, ILogger<SelectionsController> mapper)
+        public SelectionsController(ISelectionService selectionService)
         {
             _selectionService = selectionService;
-            _mapper = mapper;
         }
 
         [Authorize(Roles = "Admin,HR")]

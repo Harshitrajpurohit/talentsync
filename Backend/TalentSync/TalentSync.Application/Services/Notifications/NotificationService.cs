@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,16 +20,20 @@ namespace TalentSync.Application.Services.Notifications
         private readonly IMapper _mapper;
         private readonly IEnumerable<INotificationSender> _notificationSenders;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<NotificationService> _logger;
 
         public NotificationService(INotificationRepository notificationRepository, 
             IMapper mapper, 
-            IEnumerable<INotificationSender> notificationSenders
-            ,IUnitOfWork unitOfWork)
+            IEnumerable<INotificationSender> notificationSenders,
+            IUnitOfWork unitOfWork,
+            ILogger<NotificationService> logger
+            )
         {
             _notificationRepository = notificationRepository;
             _mapper = mapper;
             _notificationSenders = notificationSenders;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task SendAsync(CreateNotificationDto createNotification, CancellationToken cancellationToken)
@@ -46,11 +51,16 @@ namespace TalentSync.Application.Services.Notifications
             var sender = _notificationSenders.FirstOrDefault(x => x.Channel == notification.Channel);
 
             if (sender is null)
+            {
+                _logger.LogError(
+                        "No notification sender registered for channel {Channel}.",
+                        notification.Channel);
                 throw new InvalidOperationException(
-                    $"No notification sender registered for channel '{notification.Channel}'.");
+                        $"No notification sender registered for channel '{notification.Channel}'.");
+
+            }
 
             NotificationRealtimeDto notificationRealtime = _mapper.Map<NotificationRealtimeDto>(notification);
-
 
             try
             {
@@ -67,6 +77,7 @@ namespace TalentSync.Application.Services.Notifications
             }
             finally
             {
+                _logger.LogInformation("Notification {NotificationId} sent with status {Status}", notification.Id, notification.Status);
                 _notificationRepository.Update(notification);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
@@ -109,6 +120,7 @@ namespace TalentSync.Application.Services.Notifications
             notification.ReadAt = DateTime.UtcNow;
             notification.UpdatedAt = DateTime.UtcNow;
             _notificationRepository.Update(notification);
+            _logger.LogInformation("Notification {NotificationId} marked as read by user {UserId}", notification.Id, userId);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
@@ -126,7 +138,7 @@ namespace TalentSync.Application.Services.Notifications
                 notification.ReadAt = DateTime.UtcNow;
                 notification.UpdatedAt = DateTime.UtcNow;
             }
-
+            _logger.LogInformation("All notifications marked as read by user {UserId}", userId);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

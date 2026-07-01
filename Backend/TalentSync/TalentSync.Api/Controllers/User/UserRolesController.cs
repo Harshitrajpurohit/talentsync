@@ -12,17 +12,14 @@ namespace TalentSync.Api.Controllers.User
     {
 
         private readonly IUserRoleService _userRoleService;
-        private readonly ILogger<UserRolesController> _logger;
-        public UserRolesController(IUserRoleService userRoleService, ILogger<UserRolesController> logger)
+        public UserRolesController(IUserRoleService userRoleService)
         {
             _userRoleService = userRoleService;
-            _logger = logger;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateUserRoleAsync([FromBody] UserRoleRequestDTO createUserRoleDTO, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Creating user role for user {UserId} with role {RoleId}", createUserRoleDTO.UserId, createUserRoleDTO.RoleId);
             UserRoleResponseDto userRole = await _userRoleService.CreateUserRoleAsync(createUserRoleDTO, cancellationToken);
             return StatusCode(StatusCodes.Status201Created, userRole);
         }
@@ -30,7 +27,6 @@ namespace TalentSync.Api.Controllers.User
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserRoleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Getting user role with id {Id}", id);
             UserRoleResponseDto userRole = await _userRoleService.GetByIdAsync(id, cancellationToken);
             return Ok(userRole);
         }
@@ -38,7 +34,6 @@ namespace TalentSync.Api.Controllers.User
         [HttpGet]
         public async Task<IActionResult> GetAllUserRoleAsync([FromQuery]PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Getting all user roles");
             PaginationResponse<UserRoleResponseWithExtraDto> userRoles = await _userRoleService.GetAllUserRolesAsync(paginationRequest, cancellationToken);
             return Ok(userRoles);
         }
@@ -46,7 +41,6 @@ namespace TalentSync.Api.Controllers.User
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserRoleAsync(Guid id, [FromBody] UserRoleRequestDTO updateDto, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Updating user role with id {Id}", id);
             UserRoleResponseDto updatedUserRole = await _userRoleService.UpdateUserRoleAsync(id, updateDto, cancellationToken);
             return Ok(updatedUserRole);
         }
@@ -54,7 +48,6 @@ namespace TalentSync.Api.Controllers.User
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserRoleAsync(Guid id, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Deleting user role with id {Id}", id);
             await _userRoleService.DeleteUserRoleAsync(id, cancellationToken);
             return NoContent();
         }

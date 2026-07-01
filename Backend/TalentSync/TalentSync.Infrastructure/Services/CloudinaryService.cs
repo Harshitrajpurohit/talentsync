@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,11 @@ namespace TalentSync.Infrastructure.Services
     public class CloudinaryService : ICloudinaryService
     {
         private readonly Cloudinary _cloudinary;
+        private readonly ILogger<CloudinaryService> _logger;
 
-        public CloudinaryService(IOptions<CloudinarySettings> options)
+        public CloudinaryService(IOptions<CloudinarySettings> options, ILogger<CloudinaryService> logger)
         {
+            _logger = logger;
 
             if (string.IsNullOrWhiteSpace(options.Value.CloudName) ||
                 string.IsNullOrWhiteSpace(options.Value.ApiKey) ||
@@ -40,6 +43,7 @@ namespace TalentSync.Infrastructure.Services
             long fileSize
             )
         {
+            _logger.LogInformation("Uploading resume to Cloudinary: {FileName}", fileName);
             var uploadParams = new RawUploadParams
             {
                 File = new FileDescription(fileName, stream),
@@ -53,9 +57,11 @@ namespace TalentSync.Infrastructure.Services
 
             if (result.Error != null || result.SecureUrl == null)
             {
+                _logger.LogError("Failed to upload resume to Cloudinary: {FileName}", fileName);
                 throw new Exception(result?.Error?.Message ?? "Cloudinary upload failed.");
             }
 
+            _logger.LogInformation("Successfully uploaded resume to Cloudinary: {FileName}, URL: {FileUrl}", fileName, result.SecureUrl.AbsoluteUri);
             return new CloudinaryUploadResultDto
             {
                 FileUrl = result.SecureUrl.AbsoluteUri,
@@ -69,6 +75,7 @@ namespace TalentSync.Infrastructure.Services
 
         public async Task DeleteResumeAsync(string publicId)
         {
+            _logger.LogInformation("Deleting resume from Cloudinary: {PublicId}", publicId);
             if (string.IsNullOrWhiteSpace(publicId))
                 return;
 
@@ -81,8 +88,10 @@ namespace TalentSync.Infrastructure.Services
 
             if (result.Error != null)
             {
+                _logger.LogError("Failed to delete resume from Cloudinary: {PublicId}, Error: {ErrorMessage}", publicId, result.Error.Message);
                 throw new Exception(result.Error.Message);
             }
+            _logger.LogInformation("Successfully deleted resume from Cloudinary: {PublicId}", publicId);
         }
     }
 }

@@ -17,12 +17,10 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class JobsController : ControllerBase
     {
         private readonly IJobService _jobService;
-        private readonly ILogger<JobsController> _logger;
 
-        public JobsController(IJobService jobService, ILogger<JobsController> logger)
+        public JobsController(IJobService jobService)
         {
             _jobService = jobService;
-            _logger = logger;
         }
 
         [Authorize(Roles = "HR,Admin")]
@@ -32,7 +30,6 @@ namespace TalentSync.Api.Controllers.Recruitment
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var userId = User.GetUserId();
-            _logger.LogInformation("Creating job by HR {UserId}", userId);
             JobResponseDto job = await _jobService.CreateJobAsync(jobDto, userId, cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, job);

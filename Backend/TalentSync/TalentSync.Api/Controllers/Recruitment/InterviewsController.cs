@@ -13,12 +13,10 @@ namespace TalentSync.Api.Controllers.Recruitment
     public class InterviewsController : ControllerBase
     {
         private readonly IInterviewService _interviewService;
-        private readonly ILogger<InterviewsController> _logger;
 
-        public InterviewsController(IInterviewService interviewService, ILogger<InterviewsController> logger)
+        public InterviewsController(IInterviewService interviewService)
         {
             _interviewService = interviewService;
-            _logger = logger;
         }
 
         [Authorize(Roles = "HR,Manager,Recruiter")]

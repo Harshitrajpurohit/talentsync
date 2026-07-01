@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
@@ -14,14 +16,17 @@ namespace TalentSync.Application.Services
     {
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
-        public RoleService(IRoleRepository roleRepository, IMapper mapper)
+        private readonly ILogger<RoleService> _logger;
+        public RoleService(IRoleRepository roleRepository, IMapper mapper, ILogger<RoleService> logger)
         {
             _roleRepository = roleRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<List<string>> GetAllRolesAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Fetching all roles.");
             return await _roleRepository.GetAllRolesAsync(cancellationToken);
         }
 
@@ -30,6 +35,7 @@ namespace TalentSync.Application.Services
             Role? role = await _roleRepository.GetRoleByIdAsync(rId, cancellationToken);
             if (role == null)
             {
+                _logger.LogWarning("Role with ID {RoleId} not found.", rId);
                 throw new KeyNotFoundException("Role not found.");
             }
 
@@ -49,6 +55,7 @@ namespace TalentSync.Application.Services
             {
                 throw new KeyNotFoundException("Role not found.");
             }
+            _logger.LogInformation("Role found with ID {RoleId}.", role.Id);
             return _mapper.Map<RoleResponseDto>(role);
         }
 
@@ -67,6 +74,7 @@ namespace TalentSync.Application.Services
 
             await _roleRepository.AddRoleAsync(role, cancellationToken);
             await _roleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Role created successfully with ID {RoleId}.", role.Id);
             return _mapper.Map<RoleResponseDto>(role);
         }
 
@@ -75,11 +83,13 @@ namespace TalentSync.Application.Services
             Role? existingRole = await _roleRepository.GetRoleByIdForUpdateAsync(rId, cancellationToken);
             if (existingRole == null)
             {
+                _logger.LogWarning("Role with ID {RoleId} not found.", rId);
                 throw new KeyNotFoundException("Role not found.");
             }
             existingRole.Name = updateRoleDTO.Name;
             existingRole.UpdatedAt = DateTime.UtcNow;
             await _roleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Role updated successfully with ID {RoleId}.", existingRole.Id);
             return _mapper.Map<RoleResponseDto>(existingRole);
         }
 
@@ -88,12 +98,14 @@ namespace TalentSync.Application.Services
             Role? existingRole = await _roleRepository.GetRoleByIdForUpdateAsync(rId, cancellationToken);
             if (existingRole == null)
             {
+                _logger.LogWarning("Role with ID {RoleId} not found.", rId);
                 throw new KeyNotFoundException("Role not found.");
             }
 
             _roleRepository.DeleteRole(existingRole);
             existingRole.UpdatedAt = DateTime.UtcNow;
             await _roleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Role deleted successfully with ID {RoleId}.", existingRole.Id);
 
             return true;
         }
@@ -103,11 +115,13 @@ namespace TalentSync.Application.Services
             Role? existingRole = await _roleRepository.GetRoleByIdIncludingDeletedAsync(rId, cancellationToken);
             if (existingRole == null)
             {
+                _logger.LogWarning("Role with ID {RoleId} not found.", rId);
                 throw new KeyNotFoundException("Role not found.");
             }
             _roleRepository.RestoreDeletedRole(existingRole);
             existingRole.UpdatedAt = DateTime.UtcNow;
             await _roleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Role restored successfully with ID {RoleId}.", existingRole.Id);
             return true;
         }
     }

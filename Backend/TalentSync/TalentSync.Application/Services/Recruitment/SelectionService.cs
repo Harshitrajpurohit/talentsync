@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,6 +29,8 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly INotificationService _notificationService;
+        private readonly ILogger<SelectionService> _logger;
+
 
         public SelectionService(ISelectionRepository selectionRepository,
             IMapper mapper,
@@ -38,7 +41,8 @@ namespace TalentSync.Application.Services.Recruitment
             IEmployeeRepository employeeRepository,
             IUserRoleRepository userRoleRepository,
             IRoleRepository roleRepository,
-            INotificationService notificationService
+            INotificationService notificationService,
+            ILogger<SelectionService> logger
             )
         {
             _selectionRepository = selectionRepository;
@@ -50,10 +54,12 @@ namespace TalentSync.Application.Services.Recruitment
             _userRoleRepository = userRoleRepository;
             _roleRepository = roleRepository;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         public async Task<SelectionResponseDto> MakeDecisionAsync(CreateSelectionDecisionDto createSelectionDecision, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Making selection decision for application with ID: {ApplicationId}", createSelectionDecision.ApplicationId);
             if (createSelectionDecision.Decision == SelectionDecision.Pending)
             {
                 throw new InvalidOperationException(
@@ -66,6 +72,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             if (application.Status == ApplicationStatus.Rejected)
             {
+                _logger.LogWarning("Attempted to make a decision on a rejected application with ID: {ApplicationId}", createSelectionDecision.ApplicationId);
                 throw new InvalidOperationException(
                     "Application is already rejected and cannot receive a new decision.");
             }
@@ -134,10 +141,11 @@ namespace TalentSync.Application.Services.Recruitment
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-                
+                _logger.LogInformation("Selection decision made successfully for application with ID: {ApplicationId}", createSelectionDecision.ApplicationId);
             }
             catch
             {
+                _logger.LogError("An error occurred while making selection decision for application with ID: {ApplicationId}. Rolling back transaction.", createSelectionDecision.ApplicationId);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
@@ -156,6 +164,9 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<SelectionWithDetailsResponseDto>(selection);
 
         }
+
+
+        // private
 
         private async Task ConvertCandidateToEmployeeAsync(ApplicationEntity application, CreateSelectionDecisionDto createSelectionDecision, CancellationToken cancellationToken)
         {
@@ -194,8 +205,6 @@ namespace TalentSync.Application.Services.Recruitment
             }
         }
 
-
-        // private
 
         private async Task SendSelectionNotificationAsync(ApplicationEntity application, SelectionDecision decision, CancellationToken cancellationToken)
         {

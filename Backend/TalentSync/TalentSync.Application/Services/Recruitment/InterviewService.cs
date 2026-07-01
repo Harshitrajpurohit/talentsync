@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
@@ -28,6 +29,7 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IUserRepository _userRepository;
         private readonly IUserRoleRepository _userRoleRepository;
         private readonly INotificationService _notificationService;
+        private readonly ILogger<InterviewService> _logger;
 
         public InterviewService(IInterviewRepository interviewRepository, 
             IMapper mapper, 
@@ -36,7 +38,9 @@ namespace TalentSync.Application.Services.Recruitment
             IUnitOfWork unitOfWork, 
             IUserRepository userRepository, 
             IUserRoleRepository userRoleRepository, 
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ILogger<InterviewService> logger
+            )
         {
             _interviewRepository = interviewRepository;
             _mapper = mapper;
@@ -46,16 +50,14 @@ namespace TalentSync.Application.Services.Recruitment
             _userRepository = userRepository;
             _userRoleRepository = userRoleRepository;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         public async Task<InterviewResponseDto> ScheduleInterviewAsync(ScheduleInterviewDto scheduleInterview, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Scheduling interview for application {ApplicationId} with interviewer {InterviewerId} at {ScheduledAt}.", scheduleInterview.ApplicationId, scheduleInterview.InterviewerId, scheduleInterview.ScheduledAt);
 
-            if (scheduleInterview.ScheduledAt <= DateTime.UtcNow.AddMinutes(5))
-            {
-                throw new InvalidOperationException(
-                    "Interview must be scheduled in the future.");
-            }
+            ValidateInterviewScheduleTime(scheduleInterview.ScheduledAt);
 
             ApplicationEntity? application = await _applicationRepository.GetByIdAsync(scheduleInterview.ApplicationId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Application not found.");
@@ -63,6 +65,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             if (!ApplicationStatusValidator.IsValidTransition(application.Status, ApplicationStatus.InterviewScheduled))
             {
+                _logger.LogWarning("Invalid application status transition from {CurrentStatus} to {NewStatus} for application {ApplicationId}.", application.Status, ApplicationStatus.InterviewScheduled, application.Id);
                 throw new InvalidOperationException(
                     $"Cannot schedule interview from '{application.Status}'.");
             }
@@ -78,51 +81,17 @@ namespace TalentSync.Application.Services.Recruitment
 
             List<Interview> existingInterviews = await _interviewRepository.GetByApplicationIdAsync(scheduleInterview.ApplicationId, cancellationToken);
 
-            var activeInterview = existingInterviews.FirstOrDefault(i =>
-                i.Status == InterviewStatus.Scheduled ||
-                i.Status == InterviewStatus.Passed || 
-                i.Status == InterviewStatus.Completed
-                );
 
-            switch (activeInterview?.Status)
-            {
-                case InterviewStatus.Passed:
-                    throw new InvalidOperationException(
-                        "Cannot schedule another interview — this candidate has already passed. Proceed to final selection.");
-                    
-
-                case InterviewStatus.Scheduled:
-                    throw new InvalidOperationException(
-                      "Cannot schedule another interview — an active interview already exists for this application. Cancel it first.");
-                    
-
-                case InterviewStatus.Completed:
-                    throw new InvalidOperationException(
-                      "Cannot schedule another interview — this candidate has already Completed Interview. First give the result than try again.");
-                    
-            }
+            ValidateExistingInterviewStatus(existingInterviews);     
 
             User? interviewer = await _userRepository.GetUserByIdAsync(scheduleInterview.InterviewerId, cancellationToken);
 
-            if (interviewer == null)
-            {
-                throw new KeyNotFoundException("Interviewer not found.");
-            }
-            if (interviewer.Status != UserStatus.Active)
-            {
-                throw new InvalidOperationException(
-                    "Interviewer account is not active.");
-            }
+            ValidateInterviewer(interviewer);
 
             UserRole? userRole = await _userRoleRepository.GetByUserIdWithRoleAsync(interviewer.Id, cancellationToken);
-            if (userRole == null)
-            {
-                throw new KeyNotFoundException("Role Not Assigned ");
-            }
-            if(userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR && userRole.Role.Name != RoleName.Recruiter)
-            {
-                throw new InvalidOperationException("Selected user cannot conduct interviews.");
-            }
+
+            ValidateInterviewerRole(userRole);     
+
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             Interview newInterview;
@@ -139,14 +108,14 @@ namespace TalentSync.Application.Services.Recruitment
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
-                
+                _logger.LogInformation("Interview scheduled successfully for application {ApplicationId} with interviewer {InterviewerId} at {ScheduledAt}.", scheduleInterview.ApplicationId, scheduleInterview.InterviewerId, scheduleInterview.ScheduledAt);
             }
             catch
             {
+                _logger.LogError("Error occurred while scheduling interview for application {ApplicationId} with interviewer {InterviewerId} at {ScheduledAt}. Rolling back transaction.", scheduleInterview.ApplicationId, scheduleInterview.InterviewerId, scheduleInterview.ScheduledAt);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
-
             await SendInterviewScheduledNotificationsAsync(application, interviewer.Id, scheduleInterview.ScheduledAt, cancellationToken);
 
             return _mapper.Map<InterviewResponseDto>(newInterview);
@@ -165,9 +134,13 @@ namespace TalentSync.Application.Services.Recruitment
 
         public async Task<InterviewResponseDto> UpdateInterviewStatusAsync(Guid id, UpdateInterviewStatusDto updateInterviewStatus, CancellationToken cancellationToken)
         {
+
+            _logger.LogInformation("Updating interview status for interview {InterviewId} to {NewStatus}.", id, updateInterviewStatus.Status);
+
             Interview interview = await _interviewRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Interview Not Found");
 
             if (!InterviewStatusValidator.IsValidTransition(interview.Status, updateInterviewStatus.Status)) {
+                _logger.LogWarning("Invalid interview status transition from {CurrentStatus} to {NewStatus} for interview {InterviewId}.", interview.Status, updateInterviewStatus.Status, id);
                 throw new InvalidOperationException(
                     $"Cannot change status from '{interview.Status}' to '{updateInterviewStatus.Status}'. ");
             }
@@ -203,21 +176,22 @@ namespace TalentSync.Application.Services.Recruitment
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-                
+                _logger.LogInformation("Interview status for interview {InterviewId} updated successfully to {NewStatus}.", id, updateInterviewStatus.Status);
             }
             catch
             {
+                _logger.LogError("Error occurred while updating interview status for interview {InterviewId} to {NewStatus}. Rolling back transaction.", id, updateInterviewStatus.Status);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
-
-            await SendInterviewResultNotificationAsync(application, updateInterviewStatus.Status, cancellationToken);
+           await SendInterviewResultNotificationAsync(application, updateInterviewStatus.Status, cancellationToken);
 
             return _mapper.Map<InterviewResponseDto>(interview);
         }
 
         public async Task<InterviewResponseDto> RescheduleInterviewAsync(Guid id, RescheduleInterviewDto rescheduleInterview, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Rescheduling interview {InterviewId} to new time {NewScheduledAt}.", id, rescheduleInterview.ScheduledAt);
             Interview interview = await _interviewRepository.GetByIdAsync(id, cancellationToken)
                 ?? throw new KeyNotFoundException("Interview not found.");
 
@@ -225,15 +199,12 @@ namespace TalentSync.Application.Services.Recruitment
                 interview.Status,
                 InterviewStatus.Scheduled))
             {
+                _logger.LogWarning("Invalid interview status transition from {CurrentStatus} to {NewStatus} for interview {InterviewId}.", interview.Status, InterviewStatus.Scheduled, id);
                 throw new InvalidOperationException(
                     $"Cannot reschedule interview from '{interview.Status}'.");
             }
 
-            if (rescheduleInterview.ScheduledAt <= DateTime.UtcNow.AddMinutes(5))
-            {
-                throw new InvalidOperationException(
-                    "Interview must be scheduled at least 5 minutes in the future.");
-            }
+            ValidateInterviewScheduleTime(rescheduleInterview.ScheduledAt);
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             ApplicationEntity? application = null;
@@ -251,21 +222,19 @@ namespace TalentSync.Application.Services.Recruitment
                         interview.ApplicationId,
                         cancellationToken) ?? throw new KeyNotFoundException("Application not found.");
 
-                if (application != null)
-                {
-                    application.Status = ApplicationStatus.InterviewScheduled;
-                    application.UpdatedAt = DateTime.UtcNow;
+                application.Status = ApplicationStatus.InterviewScheduled;
+                application.UpdatedAt = DateTime.UtcNow;
 
-                    _applicationRepository.Update(application);
-                }
+                _applicationRepository.Update(application);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-                
+                _logger.LogInformation("Interview {InterviewId} rescheduled successfully to new time {NewScheduledAt}.", id, rescheduleInterview.ScheduledAt);
             }
             catch
             {
+                _logger.LogError("Error occurred while rescheduling interview {InterviewId} to new time {NewScheduledAt}. Rolling back transaction.", id, rescheduleInterview.ScheduledAt);
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
@@ -279,30 +248,14 @@ namespace TalentSync.Application.Services.Recruitment
         {
             User? interviewer = await _userRepository.GetUserByIdAsync(interviewerId, cancellationToken);
 
-            if (interviewer == null)
-            {
-                throw new KeyNotFoundException("Interviewer not found.");
-            }
-            if (interviewer.Status != UserStatus.Active)
-            {
-                throw new InvalidOperationException(
-                    "Interviewer account is not active.");
-            }
+            ValidateInterviewer(interviewer);
+
 
             UserRole? userRole = await _userRoleRepository.GetByUserIdWithRoleAsync(interviewer.Id, cancellationToken);
-            if (userRole == null)
-            {
-                throw new KeyNotFoundException("Role Not Assigned ");
-            }
-            if (userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR && userRole.Role.Name != RoleName.Recruiter)
-            {
-                throw new InvalidOperationException("Selected user cannot conduct interviews.");
-            }
 
+            ValidateInterviewerRole(userRole);
 
             List<Interview> interviews = await _interviewRepository.GetByInterviewerIdAsync(interviewerId, cancellationToken);
-
-
             return _mapper.Map<List<InterviewDetailedResponseDto>>(interviews);
         }
 
@@ -319,6 +272,72 @@ namespace TalentSync.Application.Services.Recruitment
 
 
         // private 
+
+        // validations
+
+        private static void ValidateInterviewScheduleTime(DateTime scheduledAt)
+        {
+            if (scheduledAt <= DateTime.UtcNow.AddMinutes(5))
+            {
+                throw new InvalidOperationException(
+                    "Interview must be scheduled in the future.");
+            }
+        }
+
+        private static void ValidateExistingInterviewStatus(List<Interview> existingInterviews)
+        {
+            var activeInterview = existingInterviews.FirstOrDefault(i =>
+                i.Status == InterviewStatus.Scheduled ||
+                i.Status == InterviewStatus.Passed ||
+                i.Status == InterviewStatus.Completed
+                );
+
+            switch (activeInterview?.Status)
+            {
+                case InterviewStatus.Passed:
+                    throw new InvalidOperationException(
+                        "Cannot schedule another interview — this candidate has already passed. Proceed to final selection.");
+
+
+                case InterviewStatus.Scheduled:
+                    throw new InvalidOperationException(
+                      "Cannot schedule another interview — an active interview already exists for this application. Cancel it first.");
+
+
+                case InterviewStatus.Completed:
+                    throw new InvalidOperationException(
+                      "Cannot schedule another interview — this candidate has already Completed Interview. First give the result than try again.");
+
+            }
+        }
+
+        private static void ValidateInterviewer(User? interviewer)
+        {
+            if (interviewer == null)
+            {
+                throw new KeyNotFoundException("Interviewer not found.");
+            }
+            if (interviewer.Status != UserStatus.Active)
+            {
+                throw new InvalidOperationException(
+                    "Interviewer account is not active.");
+            }
+        }
+
+        private static void ValidateInterviewerRole(UserRole? userRole)
+        {
+            if (userRole == null)
+            {
+                throw new KeyNotFoundException("Role Not Assigned ");
+            }
+            if (userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR && userRole.Role.Name != RoleName.Recruiter)
+            {
+                throw new InvalidOperationException("Selected user cannot conduct interviews.");
+            }
+        }
+
+
+        //notifications
 
         private async Task SendInterviewScheduledNotificationsAsync(ApplicationEntity application, Guid interviewerId, DateTime scheduledAt, CancellationToken cancellationToken)
         {

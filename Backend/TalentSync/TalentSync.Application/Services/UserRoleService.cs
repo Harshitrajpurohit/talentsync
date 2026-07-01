@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,13 +17,15 @@ namespace TalentSync.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private IMapper _mapper;
+        private readonly ILogger<UserRoleService> _logger;
 
-        public UserRoleService(IUserRoleRepository userRoleRepository, IMapper mapper, IUserRepository userRepository, IRoleRepository roleRepository)
+        public UserRoleService(IUserRoleRepository userRoleRepository, IMapper mapper, IUserRepository userRepository, IRoleRepository roleRepository, ILogger<UserRoleService> logger)
         {
             _userRoleRepository = userRoleRepository;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<UserRoleResponseDto> CreateUserRoleAsync(UserRoleRequestDTO createUserRoleDTO, CancellationToken cancellationToken)
@@ -49,6 +52,7 @@ namespace TalentSync.Application.Services
                 userRole.UpdatedAt = DateTime.UtcNow;
                 _userRoleRepository.Update(userRole);
                 await _userRoleRepository.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("User role updated successfully with ID {UserRole_id}.", userRole.Id);
                 return _mapper.Map<UserRoleResponseDto>(userRole);
             }
 
@@ -57,6 +61,7 @@ namespace TalentSync.Application.Services
             userRole.UpdatedAt = DateTime.UtcNow;
             var added = await _userRoleRepository.AddAsync(userRole, cancellationToken);
             await _userRoleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("User role created successfully with ID {UserRole_id}.", added.Id);
 
             return _mapper.Map<UserRoleResponseDto>(added);
         }
@@ -65,9 +70,10 @@ namespace TalentSync.Application.Services
             UserRole? userRole = await _userRoleRepository.GetByIdAsync(urId, cancellationToken);
 
             if (userRole == null) {
+                _logger.LogWarning("UserRole with ID {UserRole_id} not found.", urId);
                 throw new KeyNotFoundException("UserRole Not Found with id : " + urId);
             }
-
+            _logger.LogInformation("UserRole found with ID {UserRole_id}.", userRole.Id);
             return _mapper.Map<UserRoleResponseDto>(userRole);
         }
 
@@ -77,9 +83,10 @@ namespace TalentSync.Application.Services
 
             if (userRole == null)
             {
+                _logger.LogWarning("UserRole with UserId {UserId} not found.", uId);
                 throw new KeyNotFoundException("UserRole Not Found with UserId : " + uId);
             }
-
+            _logger.LogInformation("UserRole found with UserId {UserId}.", userRole.UserId);
             return _mapper.Map<UserRoleResponseDto>(userRole);
         }
 
@@ -114,7 +121,7 @@ namespace TalentSync.Application.Services
             userRole.UpdatedAt = DateTime.UtcNow;
             _userRoleRepository.Update(userRole);
             await _userRoleRepository.SaveChangesAsync(cancellationToken);
-
+            _logger.LogInformation("User role updated successfully with ID {UserRole_id}.", userRole.Id);
             return _mapper.Map<UserRoleResponseDto>(userRole);
 
         }
@@ -130,6 +137,7 @@ namespace TalentSync.Application.Services
             userRole.UpdatedAt = DateTime.UtcNow;
             _userRoleRepository.Update(userRole);
             await _userRoleRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("User role deleted successfully with ID {UserRole_id}.", userRole.Id);
             return true;
         }
 
@@ -139,7 +147,8 @@ namespace TalentSync.Application.Services
             int totalUserRoles = await _userRoleRepository.CountActiveUserRoleAsync(cancellationToken);
 
             List<UserRoleResponseWithExtraDto> userRoles = await _userRoleRepository.GetAllUserRolesAsync(paginationRequest, cancellationToken);
-
+            
+            _logger.LogInformation("Retrieved all user roles.");
             return new PaginationResponse<UserRoleResponseWithExtraDto>
             (
                 pageNumber:paginationRequest.PageNumber,

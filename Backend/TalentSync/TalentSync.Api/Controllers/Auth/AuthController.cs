@@ -13,13 +13,11 @@ namespace TalentSync.Api.Controllers.Auth
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ILogger<AuthController> _logger;
         private readonly IAuthService _authService;
         private readonly CookieHelper _cookieHelper;
 
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, CookieHelper cookieHelper)
+        public AuthController(IAuthService authService, CookieHelper cookieHelper)
         {
-            _logger = logger;
             _authService = authService;
             _cookieHelper = cookieHelper;
         }
@@ -28,7 +26,6 @@ namespace TalentSync.Api.Controllers.Auth
         [HttpPost("register")]
         public async Task<IActionResult> CreateUserAsync([FromBody]UserRegisterRequestDto userRegisterRequestDto, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Creating user with Email : {Email}", userRegisterRequestDto.Email);
             UserResponseDto userResponseDto = await _authService.CreateUserAsync(userRegisterRequestDto, cancellationToken);
 
             return Ok(userResponseDto);
@@ -37,7 +34,7 @@ namespace TalentSync.Api.Controllers.Auth
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync([FromBody] UserLoginRequestdto userLoginRequestdto, CancellationToken cancellationToken) {
-            _logger.LogInformation("Try Login user with Email : {Email}", userLoginRequestdto.Email);
+
             UserLoginResponseDto userLoginResponseDto = await _authService.LoginAsync(userLoginRequestdto, cancellationToken);
 
             _cookieHelper.SetRefreshTokenCookie(Response, userLoginResponseDto.RefreshToken);

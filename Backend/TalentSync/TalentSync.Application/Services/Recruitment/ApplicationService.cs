@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,23 +22,23 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IUserRepository _userRepository;
         private readonly IJobRepository _jobRepository;
         private readonly IMapper _mapper;
-        private readonly IResumeRepository _resumeRepository;
-        
         private readonly INotificationService _notificationService;
+        private readonly ILogger<ApplicationService> _logger;
 
         public ApplicationService(IApplicationRepository applicationRepository,
             IUserRepository userRepository,
             IMapper mapper,
             IJobRepository jobRepository,
-            IResumeRepository resumeRepository, 
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ILogger<ApplicationService> logger
+            )
         {
             _applicationRepository = applicationRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _jobRepository = jobRepository;
-            _resumeRepository = resumeRepository;
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         public async Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto createApplicationDto,Guid candidateId, CancellationToken cancellationToken)
@@ -48,31 +49,23 @@ namespace TalentSync.Application.Services.Recruitment
             //    throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
             //}
 
+            _logger.LogInformation("Creating application for candidate {CandidateId} for job {JobId}", candidateId, createApplicationDto.JobId);
+
             ApplicationEntity application = _mapper.Map<ApplicationEntity>(createApplicationDto);
 
             Job? job = await _jobRepository.GetJobByIdAsync(createApplicationDto.JobId, cancellationToken);
-            if (job == null || job.IsDeleted)
-            {
-                throw new KeyNotFoundException("Job Not Available");
-            }
-            if(job.Status == JobStatus.Closed)
-            {
-                throw new InvalidOperationException($"Job '{job.Title}' is not accepting applications.");
-            }
+
+            ValidateJobStatus(job);
+
 
             User? user = await _userRepository.GetUserByIdAsync(candidateId, cancellationToken);
-            if (user == null || user.IsDeleted)
-            {
-                throw new KeyNotFoundException("User Not Available");
-            }
-            if(user.Status != UserStatus.Active)
-            {
-                throw new InvalidOperationException("Candidate account is not active.");
-            }
+
+            ValidateUserStatus(user);
 
             bool alreadyApplied = await _applicationRepository.ExistsAsync(createApplicationDto.JobId, candidateId, cancellationToken);
             if (alreadyApplied)
             {
+                _logger.LogWarning("Candidate {CandidateId} has already applied for job {JobId}", candidateId, createApplicationDto.JobId);
                 throw new InvalidOperationException(
                     "You have already applied for this job.");
             }
@@ -84,6 +77,8 @@ namespace TalentSync.Application.Services.Recruitment
             ApplicationEntity newApplication = await _applicationRepository.AddAsync(application, cancellationToken);
             await _applicationRepository.SaveChangesAsync(cancellationToken);
 
+            _logger.LogInformation("Application {ApplicationId} created successfully for candidate {CandidateId} for job {JobId}", newApplication.Id, candidateId, createApplicationDto.JobId);
+
             CreateNotificationDto createNotification = new CreateNotificationDto
             {
                 UserId = user.Id,
@@ -94,7 +89,7 @@ namespace TalentSync.Application.Services.Recruitment
             };
             
             await _notificationService.SendAsync(createNotification, cancellationToken);
-
+            
             return _mapper.Map<ApplicationResponseDto>(newApplication);
         }
 
@@ -160,6 +155,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             if(!ApplicationStatusValidator.IsValidTransition(application.Status, updateApplicationRequestDto.Status))
             {
+                _logger.LogWarning("Invalid status transition from {CurrentStatus} to {NewStatus} for application {ApplicationId}", application.Status, updateApplicationRequestDto.Status, id);
                 throw new InvalidOperationException($"Cannot change application status from {application.Status} to {updateApplicationRequestDto.Status}");
             }
 
@@ -167,6 +163,7 @@ namespace TalentSync.Application.Services.Recruitment
             application.UpdatedAt = DateTime.UtcNow;
             _applicationRepository.Update(application);
             await _applicationRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Application {ApplicationId} updated successfully to status {NewStatus}", id, updateApplicationRequestDto.Status);
             return _mapper.Map<ApplicationResponseDto>(application);
         }
 
@@ -180,7 +177,38 @@ namespace TalentSync.Application.Services.Recruitment
             _applicationRepository.Delete(application);
             application.UpdatedAt = DateTime.UtcNow;
             await _applicationRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Application {ApplicationId} deleted successfully", id);
             return true;
+        }
+
+
+        // private 
+        // create applications
+
+        private static void ValidateJobStatus(Job? job)
+        {
+
+            if (job == null || job.IsDeleted)
+            {
+                throw new KeyNotFoundException("Job Not Available");
+            }
+            if (job.Status == JobStatus.Closed)
+            {
+                throw new InvalidOperationException($"Job '{job.Title}' is not accepting applications.");
+            }
+        }
+
+        private static void ValidateUserStatus(User? user)
+        {
+
+            if (user == null || user.IsDeleted)
+            {
+                throw new KeyNotFoundException("User Not Available");
+            }
+            if (user.Status != UserStatus.Active)
+            {
+                throw new InvalidOperationException("Candidate account is not active.");
+            }
         }
 
     }

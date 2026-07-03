@@ -3,4 +3,5 @@
   <Project Path="TalentSync.Application/TalentSync.Application.csproj" />
   <Project Path="TalentSync.Domain/TalentSync.Domain.csproj" />
   <Project Path="TalentSync.Infrastructure/TalentSync.Infrastructure.csproj" />
+  <Project Path="TalentSync.Tests/TalentSync.Tests.csproj" Id="ba5f6350-98f9-4f71-b3a8-9a76160781be" />
 </Solution>

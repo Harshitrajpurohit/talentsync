@@ -21,33 +21,36 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IApplicationRepository _applicationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IJobRepository _jobRepository;
+        private readonly IResumeRepository _resumeRepository;
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
         private readonly ILogger<ApplicationService> _logger;
 
         public ApplicationService(IApplicationRepository applicationRepository,
             IUserRepository userRepository,
-            IMapper mapper,
             IJobRepository jobRepository,
+            IResumeRepository resumeRepository,
+            IMapper mapper,
             INotificationService notificationService,
             ILogger<ApplicationService> logger
             )
         {
             _applicationRepository = applicationRepository;
             _userRepository = userRepository;
-            _mapper = mapper;
             _jobRepository = jobRepository;
+            _resumeRepository = resumeRepository;
+            _mapper = mapper;
             _notificationService = notificationService;
             _logger = logger;
         }
 
         public async Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto createApplicationDto,Guid candidateId, CancellationToken cancellationToken)
         {
-            //Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
-            //if (resume == null)
-            //{
-            //    throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
-            //}
+            Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
+            if (resume == null)
+            {
+                throw new InvalidOperationException("Resume Not Uploaded, Upload it First.");
+            }
 
             _logger.LogInformation("Creating application for candidate {CandidateId} for job {JobId}", candidateId, createApplicationDto.JobId);
 

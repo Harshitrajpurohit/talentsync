@@ -36,7 +36,6 @@ namespace TalentSync.Application.Services.Recruitment
             IMapper mapper,
             IApplicationRepository applicationRepository,
             IInterviewRepository interviewRepository,
-            IScreeningRepository screeningRepository,
             IUnitOfWork unitOfWork,
             IEmployeeRepository employeeRepository,
             IUserRoleRepository userRoleRepository,
@@ -159,7 +158,7 @@ namespace TalentSync.Application.Services.Recruitment
             Selection? selection = await _selectionRepository.GetByApplicationIdAsync(applicationId, cancellationToken);
             if (selection == null)
             {
-                throw new KeyNotFoundException("Selection Not Found.");
+                throw new KeyNotFoundException("Selection not found for the given applicationId.");
             }
             return _mapper.Map<SelectionWithDetailsResponseDto>(selection);
 

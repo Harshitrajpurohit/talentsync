@@ -15,7 +15,6 @@ using TalentSync.Domain.Entities.User;
 using TalentSync.Domain.Enums.Notifications;
 using TalentSync.Domain.Enums.Recruitment;
 using TalentSync.Domain.Enums.User;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TalentSync.Application.Services.Recruitment
 {
@@ -192,6 +191,9 @@ namespace TalentSync.Application.Services.Recruitment
         public async Task<InterviewResponseDto> RescheduleInterviewAsync(Guid id, RescheduleInterviewDto rescheduleInterview, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Rescheduling interview {InterviewId} to new time {NewScheduledAt}.", id, rescheduleInterview.ScheduledAt);
+            
+            ValidateInterviewScheduleTime(rescheduleInterview.ScheduledAt);
+
             Interview interview = await _interviewRepository.GetByIdAsync(id, cancellationToken)
                 ?? throw new KeyNotFoundException("Interview not found.");
 
@@ -203,8 +205,6 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new InvalidOperationException(
                     $"Cannot reschedule interview from '{interview.Status}'.");
             }
-
-            ValidateInterviewScheduleTime(rescheduleInterview.ScheduledAt);
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             ApplicationEntity? application = null;
@@ -328,7 +328,7 @@ namespace TalentSync.Application.Services.Recruitment
         {
             if (userRole == null)
             {
-                throw new KeyNotFoundException("Role Not Assigned ");
+                throw new KeyNotFoundException("Role Not Assigned.");
             }
             if (userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR && userRole.Role.Name != RoleName.Recruiter)
             {

@@ -72,8 +72,8 @@ namespace TalentSync.Api.Controllers.Auth
             });
 
             
-
         }
+
         [HttpPost("logout")]
         public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
         {

@@ -77,7 +77,7 @@ namespace TalentSync.Application.Services
 
             _mapper.Map(updateUserDTO, user);
             user.UpdatedAt = DateTime.UtcNow;
-
+            
             await _userRepository.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("User updated successfully with ID {UserId}.", user.Id);
             return _mapper.Map<UserResponseDto>(user);

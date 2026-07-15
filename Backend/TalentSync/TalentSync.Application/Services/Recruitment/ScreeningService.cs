@@ -113,6 +113,14 @@ namespace TalentSync.Application.Services.Recruitment
         public async Task<ScreeningResponseDto> UpdateScreeningAsync(Guid id, UpdateScreeningRequestDto updateScreeningRequest, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Updating screening {ScreeningId} with new result {NewResult}", id, updateScreeningRequest.Result);
+
+            if (updateScreeningRequest.Result == ScreeningResult.Pending)
+            {
+
+                throw new InvalidOperationException(
+                    "screenings cannot be reverted to Pending.");
+            }
+
             Screening screening = await _screeningRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Screening Not Found");
 
             if (screening.Result == updateScreeningRequest.Result)
@@ -137,13 +145,6 @@ namespace TalentSync.Application.Services.Recruitment
                 _logger.LogWarning("Cannot update screening for application {ApplicationId} because it is in '{CurrentStatus}' state", application.Id, application.Status);
                 throw new InvalidOperationException(
                     $"Cannot update screening because application is in '{application.Status}' state.");
-            }
-
-            if (updateScreeningRequest.Result == ScreeningResult.Pending)
-            {
-
-                throw new InvalidOperationException(
-                    "screenings cannot be reverted to Pending.");
             }
 
 

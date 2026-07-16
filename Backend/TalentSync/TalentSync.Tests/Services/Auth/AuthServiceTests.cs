@@ -154,6 +154,7 @@ namespace TalentSync.Tests.Services.Auth
                 Phone = "9876543210"
             };
 
+
             _userRepositoryMock.Setup(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                                                 .ReturnsAsync(new User
                                                 {
@@ -162,11 +163,24 @@ namespace TalentSync.Tests.Services.Auth
                                                     IsDeleted = false
                                                 });
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
 
-            _userRepositoryMock.Verify(
-                x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            Assert.Equal("An account with this email already exists.", exception.Message);
+
+
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -189,11 +203,23 @@ namespace TalentSync.Tests.Services.Auth
                                                     IsDeleted = false
                                                 });
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
 
-            _userRepositoryMock.Verify(
-                x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            Assert.Equal("This email belongs to a deactivated account. Please restore your account.", exception.Message);
+
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
 
@@ -210,6 +236,8 @@ namespace TalentSync.Tests.Services.Auth
                 Phone = "9876543210"
             };
 
+            _userRepositoryMock.Setup(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
+
             _userRepositoryMock.Setup(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                                                 .ReturnsAsync(new User
                                                 {
@@ -219,8 +247,22 @@ namespace TalentSync.Tests.Services.Auth
                                                 });
             await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
 
-            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            
+            _userRepositoryMock.Verify(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
 
         }
         [Fact]
@@ -244,8 +286,24 @@ namespace TalentSync.Tests.Services.Auth
                                                 });
             await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
 
-            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _userRepositoryMock.Verify(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+
 
         }
 
@@ -277,12 +335,95 @@ namespace TalentSync.Tests.Services.Auth
                 .ReturnsAsync((Role?)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => _service.CreateUserAsync(request, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
 
-            _userRepositoryMock.Verify(
-                x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-                Times.Never);
+            Assert.Equal("Default Candidate role is not configured.", exception.Message);
+
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _userRepositoryMock.Verify(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+            
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateUserAsync_Should_Throw_When_AddUserAsync_Fails()
+        {
+            // Arrange
+            var request = new UserRegisterRequestDto
+            {
+                Name = "Harshit",
+                Email = "harshit@test.com",
+                Password = "Password@123",
+                Phone = "9876543210"
+            };
+
+            var mappedUser = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone
+            };
+            var candidateRole = new Role
+            {
+                Id = Guid.NewGuid(),
+                Name = RoleName.Candidate
+            };
+            var savedUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone,
+                Status = UserStatus.Active
+            };
+
+            _userRepositoryMock.Setup(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
+
+            _userRepositoryMock.Setup(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
+
+            _mapperMock.Setup(x => x.Map<User>(It.IsAny<UserRegisterRequestDto>())).Returns(mappedUser);
+
+            _passwordHasherMock.Setup(x => x.HashPassword(It.IsAny<string>())).Returns("hashed-password");
+
+            _roleRepositoryMock.Setup(x => x.GetRoleByRoleNameAsync(RoleName.Candidate, It.IsAny<CancellationToken>())).ReturnsAsync(candidateRole);
+
+            _userRepositoryMock.Setup(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())).Throws<InvalidOperationException>();
+
+            
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateUserAsync(request, CancellationToken.None));
+
+
+            _userRepositoryMock.Verify(x => x.GetUserByEmailIncludingDeletedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _userRepositoryMock.Verify(x => x.GetUserByPhoneNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _unitOfWorkMock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+            _userRepositoryMock.Verify(x => x.AddUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _userRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _userRoleRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserRole>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            _unitOfWorkMock.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+
         }
 
 

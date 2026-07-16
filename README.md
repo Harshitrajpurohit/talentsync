@@ -29,6 +29,7 @@ The platform is designed to streamline recruitment and employee management while
 - Cloudinary File Storage
 - Pagination
 - Workflow & Status Validation
+- Unit Testing (XUnit)
 
 ---
 
@@ -73,5 +74,5 @@ The platform is designed to streamline recruitment and employee management while
 - Leave Management
 - Attendance Management
 - Payroll Module
-- Unit & Integration Testing
+- Integration Testing
 - Logging & Monitoring

@@ -163,7 +163,7 @@ using (var scope = app.Services.CreateScope())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

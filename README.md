@@ -1,78 +1,272 @@
 # TalentSync
 
-TalentSync is an enterprise-grade Human Resource Management System (HRMS) and Recruitment Platform built using **ASP.NET Core**, **Clean Architecture**, **Entity Framework Core**, **SQL Server**, and **React** (Frontend in progress).
+TalentSync is a production-oriented Human Resource Management System (HRMS) and Recruitment Platform built with **ASP.NET Core Web API**, following **Clean Architecture** and modern software engineering practices.
 
-The platform is designed to streamline recruitment and employee management while following scalable, maintainable, and production-oriented software architecture.
+The project focuses on building a scalable, maintainable, and enterprise-ready recruitment management system with authentication, workflow management, real-time notifications, and containerized deployment.
 
-<div align="center">
-
-#  CURRENTLY UNDER DEVELOPMENT 
-
-</div>
+> **Project Status:**  Active Development
 
 ---
 
-## Features Implemented
+# Features
 
-- Authentication & Authorization (JWT & Role-Based Access)
-- User & Role Management
+## Authentication & Authorization
+- JWT Authentication
+- Refresh Token Authentication
+- Role-Based Authorization
+
+## User Management
+- User Management
+- Role Management
+- User Role Assignment
+
+## Recruitment Management
 - Job Management
 - Resume Management
-- Recruitment Module
-  - Applications
-  - Screening
-  - Interviews
-  - Selection
-- Employee Management
-- In-App Notification System
-    - SignalR Real-time Notifications
-- Cloudinary File Storage
-- Pagination
+- Job Applications
+- Screening
+- Interview Scheduling
+- Candidate Selection
 - Workflow & Status Validation
-- Unit Testing (XUnit)
+
+## Employee Management
+- Employee Records
+- Employee Onboarding
+
+## Notification System
+- In-App Notifications
+- SignalR Real-Time Notifications
+
+## File Management
+- Resume Upload
+- Cloudinary Integration
+
+## Infrastructure
+- Pagination
+- Global Exception Handling
+- Dependency Injection
+- AutoMapper
+- Entity Framework Core
+- SQL Server
+
+## Testing
+- xUnit
+- Moq
+- Unit Tests (180+ Passing Tests)
+
+## DevOps
+- Docker
+- Docker Compose
 
 ---
 
-## Architecture
+# Architecture
 
-- Clean Architecture
-- Layered Architecture
+The project follows **Clean Architecture** to achieve separation of concerns and maintainability.
+
+```
+Presentation (API)
+        │
+Application
+        │
+Domain
+        │
+Infrastructure
+```
 
 ### Design Patterns
 
 - Repository Pattern
 - Unit of Work Pattern
+- Service Layer Pattern
 - Strategy Pattern
 - Dependency Injection
-- Service Layer Pattern
 - DTO Pattern
 - AutoMapper
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-**Backend**
+## Backend
+
 - ASP.NET Core Web API
 - C#
 - Entity Framework Core
 - SQL Server
 - JWT Authentication
+- SignalR
 - AutoMapper
 - Cloudinary
 
-**Frontend (In Progress)**
+## Frontend (In Progress)
+
 - React
 - Tailwind CSS
 
+## Testing
+
+- xUnit
+- Moq
+
+## DevOps
+
+- Docker
+- Docker Compose
+
 ---
 
-## Upcoming Features
+# Project Structure
+
+```
+TalentSync
+│
+├── TalentSync.Api
+├── TalentSync.Application
+├── TalentSync.Domain
+├── TalentSync.Infrastructure
+└── TalentSync.Tests
+```
+
+---
+
+# Configuration
+
+For local development, the project uses **ASP.NET Core User Secrets** to store sensitive configuration values.
+
+Example:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "<your-connection-string>"
+  },
+  "JwtConfig": {
+    "Key": "<your-jwt-key>"
+  },
+  "AdminUser": {
+    "Password": "<your-admin-password>"
+  },
+  "Cloudinary": {
+    "CloudName": "<your-cloud-name>",
+    "ApiKey": "<your-api-key>",
+    "ApiSecret": "<your-api-secret>"
+  }
+}
+```
+
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+- Docker Desktop
+
+OR
+
+- .NET 10 SDK
+- SQL Server
+
+---
+
+# Run with Docker
+
+Clone the repository
+
+```bash
+git clone https://github.com/Harshitrajpurohit/talentsync.git
+```
+
+Move into the project
+
+```bash
+cd talentsync
+```
+
+Run the application
+
+```bash
+docker compose up --build
+```
+
+The API will be available at
+
+```
+http://localhost:5000
+```
+
+<!-- Swagger
+
+```
+http://localhost:5000/swagger
+``` -->
+
+---
+
+# Running Without Docker
+
+Update the connection string inside:
+
+```
+TalentSync.Api/appsettings.json
+```
+
+Apply migrations
+
+```bash
+dotnet ef database update
+```
+
+Run the project
+
+```bash
+dotnet run
+```
+
+---
+
+# Testing
+
+Run all unit tests
+
+```bash
+dotnet test
+```
+
+Current Status
+
+-  180+ Unit Tests
+-  All Tests Passing
+
+---
+
+
+# Upcoming Features
 
 - React Frontend
 - Email Notifications
+- Health Checks
+- Background Jobs (Hangfire)
+- Redis Caching
+- Rate Limiting
+- GitHub Actions CI/CD
+- Azure Deployment
+- Logging & Monitoring
+- Integration Testing
 - Leave Management
 - Attendance Management
 - Payroll Module
-- Integration Testing
-- Logging & Monitoring
+
+---
+
+# Contributing
+
+Contributions, issues, and feature requests are welcome.
+
+---
+
+# License
+
+This project is developed for learning and portfolio purposes.

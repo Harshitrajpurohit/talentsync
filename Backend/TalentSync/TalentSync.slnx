@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Project Path="TalentSync.Api/TalentSync.Api.csproj" />
   <Project Path="TalentSync.Application/TalentSync.Application.csproj" />
   <Project Path="TalentSync.Domain/TalentSync.Domain.csproj" />

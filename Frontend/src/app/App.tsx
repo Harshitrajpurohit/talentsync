@@ -1,15 +1,9 @@
+import AppRouter from "./router/AppRouter";
+
 function App() {
-  const a = 10;
-
-  const user = {
-    id: 1,
-    name: 'Harshit',
-  };
-
   return (
     <>
-      {a}
-      {user.name}
+    <AppRouter/>
     </>
   );
 }

@@ -35,6 +35,8 @@ namespace TalentSync.Api.Controllers.Auth
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync([FromBody] UserLoginRequestdto userLoginRequestdto, CancellationToken cancellationToken) {
 
+            Console.WriteLine(userLoginRequestdto.Email);
+
             UserLoginResponseDto userLoginResponseDto = await _authService.LoginAsync(userLoginRequestdto, cancellationToken);
 
             _cookieHelper.SetRefreshTokenCookie(Response, userLoginResponseDto.RefreshToken);

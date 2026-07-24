@@ -44,6 +44,16 @@ builder.Services.AddControllers()
     });
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // signalR 
 builder.Services.AddSignalR();
 
@@ -138,6 +148,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
 
 app.UseGlobalExceptionMiddleware();
 

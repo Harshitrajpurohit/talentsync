@@ -35,6 +35,13 @@ export default defineConfig([
       //     allow: ['warn', 'error'],
       //   },
       // ],
+
+      "react-refresh/only-export-components": [
+        "warn",
+        {
+          allowConstantExport: true
+        }
+      ]
     },
   },
 ]);

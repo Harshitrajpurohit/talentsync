@@ -52,7 +52,7 @@ namespace TalentSync.Infrastructure.Security
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = creds

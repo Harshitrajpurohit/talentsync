@@ -1,9 +1,9 @@
 
-import Sidebar from "./Sidebar";
 // import Topbar from "./Topbar";
 // import Footer from "./Footer";
 
 import { Outlet } from "react-router-dom";
+import Sidebar from "../../shared/components/sidebar";
 
 export default function DashboardLayout() {
   return (

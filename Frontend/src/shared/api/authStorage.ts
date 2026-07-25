@@ -1,3 +1,4 @@
+import type { AuthUser } from "../../app/types";
 const AUTH_STORAGE_KEY = "talentsync.auth";
 
 interface StoredAuth {
@@ -5,7 +6,7 @@ interface StoredAuth {
   refreshToken?: string;
 }
 
-export function getToken(): string | null {
+export function getAuth(): AuthUser | null {
   try {
     const auth = localStorage.getItem(AUTH_STORAGE_KEY);
 
@@ -13,13 +14,31 @@ export function getToken(): string | null {
       return null;
     }
 
-    const parsed: StoredAuth = JSON.parse(auth);
+    const parsed: unknown = JSON.parse(auth);
 
-    return parsed.token ?? null;
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "token" in parsed &&
+      typeof (parsed as AuthUser).token === "string"
+    ) {
+      return parsed as AuthUser;
+    }
+
+    clearAuth();
+    return null;
   } catch {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    clearAuth();
     return null;
   }
+}
+
+export function saveAuth(user: AuthUser): void {
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+}
+
+export function getToken(): string | null {
+  return getAuth()?.token ?? null;
 }
 
 export function clearAuth(): void {

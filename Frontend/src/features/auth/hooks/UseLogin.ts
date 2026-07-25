@@ -5,6 +5,7 @@ import { authApi } from "../api/authApi";
 import { useAuth } from "../../../app/hooks/useAuth";
 
 import type { LoginRequest } from "../types";
+import type { UserRole } from "../../../shared/components/sidebar/types";
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export function useLogin() {
         token: response.token,
         userId: response.userId,
         fullName: response.name,
-        email: response.email,
+        email: response.email as UserRole,
         role: response.role,
         });
 

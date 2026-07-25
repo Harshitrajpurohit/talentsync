@@ -26,84 +26,131 @@ const RoleRedirect = () => {
 
 const AppRouter = () => (
     <BrowserRouter>
-        <Routes>
+    <Routes>
 
-        {/* Public */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/" element={<RoleRedirect />} />
+      {/* ===================== Public ===================== */}
 
-        <Route
-          path="/unauthorized"
-          element={<h1>403 - Unauthorized</h1>}
-        />
+      <Route path="/" element={<RoleRedirect />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/unauthorized" element={<h1>403 - Unauthorized</h1>} />
+      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
 
 
-        {/* Admin */}
-        <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/admin" element={<AdminDashboard />} />
 
-            {/* Future pages */}
-            {/* <Route path="/admin/users" element={<UsersPage />} /> */}
-            {/* <Route path="/admin/jobs" element={<JobsPage />} /> */}
-          </Route>
+      {/* ===================== Admin ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/admin" element={<AdminDashboard />} />
+
+          <Route path="/admin/users" element={<>Users</>} />
+          <Route path="/admin/roles" element={<>Roles</>} />
+          <Route path="/admin/jobs" element={<>Jobs</>} />
+          <Route path="/admin/applications" element={<>Applications</>} />
+          <Route path="/admin/interviews" element={<>Interviews</>} />
+          <Route path="/admin/reports" element={<>Reports</>} />
+          <Route path="/admin/profile" element={<>Profile</>} />
+          <Route path="/admin/settings" element={<>Settings</>} />
+
         </Route>
-          
-          {/* Recruiter */}
-        <Route element={<ProtectedRoute allowedRoles={["Recruiter"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/recruiter"
-              element={<RecruiterDashboard />}
-            />
-          </Route>
+      </Route>
+
+
+
+      {/* ===================== Recruiter ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["Recruiter"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/recruiter" element={<RecruiterDashboard />} />
+
+          <Route path="/recruiter/jobs" element={<>Jobs</>} />
+          <Route path="/recruiter/candidates" element={<>Candidates</>} />
+          <Route path="/recruiter/applications" element={<>Applications</>} />
+          <Route path="/recruiter/interviews" element={<>Interviews</>} />
+          <Route path="/recruiter/profile" element={<>Profile</>} />
+          <Route path="/recruiter/settings" element={<>Settings</>} />
+
         </Route>
+      </Route>
 
-        {/* Candidate */}
-        <Route element={<ProtectedRoute allowedRoles={["Candidate"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/candidate"
-              element={<CandidateDashboard />}
-            />
-          </Route>
+
+
+      {/* ===================== Candidate ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["Candidate"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/candidate" element={<CandidateDashboard />} />
+
+          <Route path="/candidate/jobs" element={<>Browse Jobs</>} />
+          <Route path="/candidate/applications" element={<>My Applications</>} />
+          <Route path="/candidate/interviews" element={<>Interviews</>} />
+          <Route path="/candidate/profile" element={<>Profile</>} />
+          <Route path="/candidate/settings" element={<>Settings</>} />
+
         </Route>
+      </Route>
 
-        {/* Employee */}
-        <Route element={<ProtectedRoute allowedRoles={["Employee"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/employee"
-              element={<EmployeeDashboard />}
-            />
-          </Route>
+
+
+      {/* ===================== Employee ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["Employee"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/employee" element={<EmployeeDashboard />} />
+
+          <Route path="/employee/profile" element={<>Profile</>} />
+          <Route path="/employee/settings" element={<>Settings</>} />
+
         </Route>
+      </Route>
 
-        {/* HR */}
-        <Route element={<ProtectedRoute allowedRoles={["HR"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/hr"
-              element={<HrDashboard />}
-            />
-          </Route>
+
+
+      {/* ===================== HR ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["HR"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/hr" element={<HrDashboard />} />
+
+          <Route path="/hr/employees" element={<>Employees</>} />
+          <Route path="/hr/candidates" element={<>Candidates</>} />
+          <Route path="/hr/jobs" element={<>Jobs</>} />
+          <Route path="/hr/applications" element={<>Applications</>} />
+          <Route path="/hr/reports" element={<>Reports</>} />
+          <Route path="/hr/profile" element={<>Profile</>} />
+          <Route path="/hr/settings" element={<>Settings</>} />
+
         </Route>
+      </Route>
 
-        {/* Manager */}
-        <Route element={<ProtectedRoute allowedRoles={["Manager"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/manager"
-              element={<ManagerDashboard />}
-            />
-          </Route>
+
+
+      {/* ===================== Manager ===================== */}
+
+      <Route element={<ProtectedRoute allowedRoles={["Manager"]} />}>
+        <Route element={<DashboardLayout />}>
+
+          <Route path="/manager" element={<ManagerDashboard />} />
+
+          <Route path="/manager/jobs" element={<>Jobs</>} />
+          <Route path="/manager/candidates" element={<>Candidates</>} />
+          <Route path="/manager/applications" element={<>Applications</>} />
+          <Route path="/manager/interviews" element={<>Interviews</>} />
+          <Route path="/manager/reports" element={<>Reports</>} />
+          <Route path="/manager/profile" element={<>Profile</>} />
+          <Route path="/manager/settings" element={<>Settings</>} />
+
         </Route>
+      </Route>
 
-   
-        </Routes>
-
-    </BrowserRouter>
+    </Routes>
+  </BrowserRouter>
 );
 
 export default AppRouter;

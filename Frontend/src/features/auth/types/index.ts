@@ -1,5 +1,8 @@
 // Login
 
+import type { UserRole } from "../../../shared/components/sidebar/types";
+
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -9,7 +12,7 @@ export interface LoginResponse {
   userId: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   token: string;
 }
 

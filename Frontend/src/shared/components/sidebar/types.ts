@@ -6,8 +6,7 @@ export type UserRole =
   | "Candidate"
   | "Employee"
   | "HR"
-  | "Manager"
-  | "Employee";
+  | "Manager";
 
 export interface SidebarItem {
   title: string;

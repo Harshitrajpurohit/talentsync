@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 // Import your auth helpers (adjust paths if necessary)
 import { clearAuth, getAuth, saveAuth, getToken } from "./authStorage";
 import { authApi } from "../../features/auth/api/authApi"; // Adjust import to your API service file
+import type { UserRole } from "../components/sidebar/types";
 
 // 1. Interfaces for API Responses
 export interface ErrorResponse {
@@ -38,9 +39,9 @@ export const api = axios.create({
   baseURL: `${BASE_URL}/api`,
   timeout: 30000,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 /**
@@ -68,15 +69,13 @@ api.interceptors.response.use(
 
     // Unwrap standard API envelope if present
     if (
-      body &&
-      typeof body === "object" &&
-      "data" in body &&
-      body.data !== undefined &&
-      !("totalCount" in body) &&
-      !("page" in body)
-    ) {
+    body &&
+    typeof body === "object" &&
+    "success" in body &&
+    "data" in body
+  ) {
       response.data = body.data;
-    }
+  }
 
     return response;
   },
@@ -128,7 +127,7 @@ api.interceptors.response.use(
             ...auth,
             token: refresh.Token,
             email: refresh.Email,
-            role: refresh.Role,
+            role: refresh.Role as UserRole,
           };
 
           saveAuth(updated);

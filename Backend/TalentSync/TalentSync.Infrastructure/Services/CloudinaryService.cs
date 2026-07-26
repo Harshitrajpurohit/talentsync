@@ -62,6 +62,7 @@ namespace TalentSync.Infrastructure.Services
             }
 
             _logger.LogInformation("Successfully uploaded resume to Cloudinary: {FileName}, URL: {FileUrl}", fileName, result.SecureUrl.AbsoluteUri);
+
             return new CloudinaryUploadResultDto
             {
                 FileUrl = result.SecureUrl.AbsoluteUri,

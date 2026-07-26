@@ -26,8 +26,9 @@ namespace TalentSync.Api.Middleware
             Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
-                _logger.LogInformation("exception handler addd started");
+                _logger.LogInformation("exception handled started");
                 await _next(httpContext);
+                _logger.LogInformation("exception handler ended");
             }
             catch (Exception ex) {
                 _logger.LogError(ex, "Unhandled exception occurred. TraceId: {TraceId}", httpContext.TraceIdentifier);

@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TalentSync.Domain.Entities.User;
 using TalentSync.Domain.Enums.User;
 
@@ -16,30 +13,66 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
 
             builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.Id).HasDefaultValueSql("NEWSEQUENTIALID()").ValueGeneratedOnAdd();
+            builder.Property(u => u.Id)
+                .HasDefaultValueSql("NEWSEQUENTIALID()")
+                .ValueGeneratedOnAdd();
 
             builder.Property(u => u.Name)
                 .IsRequired()
                 .HasMaxLength(150);
 
             builder.Property(u => u.Email)
-               .IsRequired()
-               .HasMaxLength(320).IsUnicode(false);
+                .IsRequired()
+                .HasMaxLength(320)
+                .IsUnicode(false);
 
-            builder.HasIndex(u => u.Email).IsUnique();
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
 
             builder.Property(u => u.PasswordHash)
-               .IsRequired()
-               .HasMaxLength(500);
+                .IsRequired()
+                .HasMaxLength(500);
 
             builder.Property(u => u.Phone)
-                  .HasMaxLength(20)
-                  .IsRequired(false);
+                .HasMaxLength(20)
+                .IsRequired(false);
 
             builder.HasIndex(u => u.Phone)
-               .IsUnique()
-               .HasFilter("[Phone] IS NOT NULL");
+                .IsUnique()
+                .HasFilter("[Phone] IS NOT NULL");
 
+            // Profile Fields
+
+            builder.Property(u => u.ProfilePictureUrl)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.Property(u => u.DateOfBirth)
+                .IsRequired(false);
+
+            builder.Property(u => u.Gender)
+                .HasMaxLength(20)
+                .IsRequired(false);
+
+            builder.Property(u => u.Address)
+                .HasMaxLength(300)
+                .IsRequired(false);
+
+            builder.Property(u => u.About)
+                .HasMaxLength(1000)
+                .IsRequired(false);
+
+            builder.Property(u => u.LinkedinUrl)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.Property(u => u.GithubUrl)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.Property(u => u.PortfolioUrl)
+                .HasMaxLength(500)
+                .IsRequired(false);
 
             builder.Property(u => u.Status)
                 .HasConversion<string>()
@@ -47,16 +80,15 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(u => u.CreatedAt)
-                   .HasDefaultValueSql("GETUTCDATE()");
+                .HasDefaultValueSql("GETUTCDATE()");
 
             builder.HasIndex(u => u.CreatedAt);
 
             builder.Property(u => u.UpdatedAt)
-                   .HasDefaultValueSql("GETUTCDATE()");
+                .HasDefaultValueSql("GETUTCDATE()");
 
             builder.Property(u => u.IsDeleted)
-                   .HasDefaultValue(false);
-
+                .HasDefaultValue(false);
         }
     }
 }

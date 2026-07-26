@@ -13,45 +13,66 @@ export default function Sidebar() {
 
   if (!user) return null;
 
-  const items = navigation[user.role] || [];
+  const items = navigation[user.role];
 
   return (
     <>
-      {/* Mobile Top Navigation Bar */}
-      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3 lg:hidden">
+      {/* Mobile Header (Stacks on top due to DashboardLayout flex-col) */}
+      <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-[#E5EAE7] bg-white px-4 lg:hidden">
         <SidebarHeader compact />
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="rounded-lg border border-slate-800 bg-slate-900/80 p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
-          aria-label="Toggle navigation"
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
 
-      {/* Mobile Backdrop Overlay */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="rounded-lg p-2 text-[#75837D] hover:bg-[#EEF3F0] hover:text-[#212529]"
+        >
+          <Menu size={22} />
+        </button>
+      </header>
+
+      {/* Overlay */}
       {isOpen && (
         <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm lg:hidden"
         />
       )}
 
-      {/* Sidebar Drawer */}
+      {/* Sidebar */}
       <aside
-        className={`fixed bottom-0 top-0 z-50 flex w-72 flex-col border-r border-slate-800/80 bg-slate-950 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          isOpen ? "left-0 translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`
+          fixed inset-y-0 left-0 z-50
+          flex w-[260px] flex-col
+          bg-white border-r border-[#E5EAE7]
+          transition-transform duration-300 ease-in-out
+
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+
+          lg:static
+          lg:translate-x-0
+          lg:flex
+        `}
       >
-        <div className="hidden lg:block">
+        {/* Mobile Close Button (The Cross) */}
+        <div className="flex items-center justify-between border-b border-[#E5EAE7] px-4 py-4 lg:hidden">
+          <SidebarHeader compact />
+
+          <button
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg p-2 text-[#75837D] hover:bg-[#EEF3F0] hover:text-[#212529]"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden lg:block pt-6 pb-2 px-6">
           <SidebarHeader />
         </div>
 
         <SidebarUser />
 
-        {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <div className="space-y-1">
+        <nav className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="space-y-1.5">
             {items.map((item) => (
               <SidebarItem
                 key={item.path}

@@ -45,6 +45,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             CloudinaryUploadResultDto cloudinaryUploadResult = await _cloudinaryService.UploadResumeAsync(stream, fileName, contentType, fileSize);
 
+
             try
             {
                 Resume resume = _mapper.Map<Resume>(cloudinaryUploadResult);
@@ -69,7 +70,8 @@ namespace TalentSync.Application.Services.Recruitment
             Resume? resume = await _resumeRepository.GetByCandidateId(candidateId, cancellationToken);
             if(resume == null)
             {
-                throw new KeyNotFoundException("Candidate Do not have Any resume available.");
+                //throw new KeyNotFoundException("Candidate Do not have Any resume available.");
+                return null;
             }
 
             return _mapper.Map<ResumeWithDetailsResponseDto>(resume);

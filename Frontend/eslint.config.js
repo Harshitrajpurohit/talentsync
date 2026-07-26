@@ -28,6 +28,9 @@ export default defineConfig([
           varsIgnorePattern: '^_',
         },
       ],
+    
+    "react-hooks/set-state-in-effect": "off",
+    
 
       // 'no-console': [
       //   'error',

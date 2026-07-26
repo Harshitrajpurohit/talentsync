@@ -5,11 +5,13 @@ using TalentSync.Application.Interfaces.Services;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Domain.Enums.User;
 using Microsoft.AspNetCore.Authorization;
+using TalentSync.Api.Extensions;
+using TalentSync.Domain.Entities.User;
 
 namespace TalentSync.Api.Controllers.User
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
 
@@ -71,6 +73,35 @@ namespace TalentSync.Api.Controllers.User
 
             return Ok(userResponseDto);
         }
+
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyProfileAsync(
+            CancellationToken cancellationToken)
+        {
+            Guid userId = User.GetUserId();
+
+            UserResponseDto response =
+                await _userService.GetUserByIdAsync(userId, cancellationToken);
+
+            return Ok(response);
+        }
+
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateMyProfileAsync(
+            [FromBody] UpdateUserDTO updateUserDto,
+            CancellationToken cancellationToken)
+        {
+            Guid userId = User.GetUserId();
+            UserResponseDto response =
+                await _userService.UpdateUserAsync(
+                    userId,
+                    updateUserDto,
+                    cancellationToken);
+
+            return Ok(response);
+        }
+
     }
 
 }

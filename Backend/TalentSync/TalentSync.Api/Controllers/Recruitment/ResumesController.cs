@@ -24,6 +24,7 @@ namespace TalentSync.Api.Controllers.Recruitment
         [HttpPost]
         public async Task<IActionResult> UploadResumeAsync([FromForm] IFormFile resume, CancellationToken cancellationToken)
         {
+
             if (resume == null || resume.Length == 0)
                 return BadRequest("No file provided.");
             var candidateId = User.GetUserId();

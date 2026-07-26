@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { useAuth } from "../../../app/hooks/useAuth";
 
 export default function SidebarUser() {
@@ -6,22 +7,23 @@ export default function SidebarUser() {
   if (!user) return null;
 
   return (
-    <div className="border-b border-slate-800/80 p-4">
-      <div className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-3 backdrop-blur-sm">
+    <div className="px-6 py-6 border-b border-[#E5EAE7]">
+      <div className="flex flex-col items-center text-center">
         {/* User Initial Avatar */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500 font-semibold text-slate-950 shadow-md shadow-emerald-500/10">
-          {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF3F0] text-xl font-bold text-[#315343] shadow-sm mb-3">
+          {user.fullName ? user.fullName.charAt(0).toUpperCase() : "H"}
+          <div className="absolute bottom-0 right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#C3F53C]"></div>
         </div>
 
         {/* User Details */}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-white">
-            {user.fullName}
-          </p>
-          <p className="truncate text-xs font-medium text-emerald-400 capitalize">
-            {user.role}
+        <div className="flex items-center gap-1 cursor-pointer transition-opacity">
+          <p className="truncate text-base font-semibold text-[#212529]">
+            {user.fullName || "Harshit"}
           </p>
         </div>
+        <p className="truncate text-xs font-medium text-[#75837D] capitalize mt-0.5">
+          {user.role || "Developer"}
+        </p>
       </div>
     </div>
   );

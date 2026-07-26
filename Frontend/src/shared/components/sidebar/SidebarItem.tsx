@@ -15,14 +15,14 @@ export default function SidebarItem({ item, onClick }: Props) {
       end
       onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
+        `flex items-center gap-3 rounded-[10px] px-4 py-3 text-sm font-medium transition-all ${
           isActive
-            ? "bg-emerald-500 text-slate-950 font-semibold shadow-md shadow-emerald-500/20"
-            : "text-slate-400 hover:bg-slate-900/80 hover:text-white"
+            ? "bg-[#315343] text-white shadow-sm"
+            : "text-[#75837D] hover:bg-[#EEF3F0] hover:text-[#212529]"
         }`
       }
     >
-      <Icon size={18} className="shrink-0" />
+      <Icon size={20} className="shrink-0" />
       <span className="truncate">{item.title}</span>
     </NavLink>
   );

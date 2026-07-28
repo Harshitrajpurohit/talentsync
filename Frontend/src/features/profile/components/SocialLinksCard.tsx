@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { SiLinkerd, SiGithub } from '@icons-pack/react-simple-icons';
+import { SiGithub } from '@icons-pack/react-simple-icons';
 import { Globe, Edit2, Check, X } from "lucide-react";
+import { FaLinkedin } from 'react-icons/fa';
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import type { Profile } from "../types/profile";
 
@@ -19,31 +20,71 @@ export default function SocialLinksCard({ profile, onUpdate }: Props) {
         portfolioUrl: profile.portfolioUrl ?? "",
     });
 
-    async function handleSave() {
-        const payload = {
-            name: profile.name,
-            linkedinUrl: formData.linkedinUrl || undefined,
-            githubUrl: formData.githubUrl || undefined,
-            portfolioUrl: formData.portfolioUrl || undefined,
-        };
+   function hasSocialLinksChanged(payload: {
+    linkedinUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+  }) {
+    return (
+      (profile.linkedinUrl ?? undefined) !== payload.linkedinUrl ||
+      (profile.githubUrl ?? undefined) !== payload.githubUrl ||
+      (profile.portfolioUrl ?? undefined) !== payload.portfolioUrl
+    );
+  }
 
-        await update(payload);
+  async function handleSave() {
+    const payload = {
+      name: profile.name,
+      linkedinUrl: formData.linkedinUrl.trim() || undefined,
+      githubUrl: formData.githubUrl.trim() || undefined,
+      portfolioUrl: formData.portfolioUrl.trim() || undefined,
+    };
 
-        setIsEditing(false);
-        onUpdate();
+    if (!hasSocialLinksChanged(payload)) {
+      setIsEditing(false);
+      return;
     }
+
+    try {
+      await update(payload);
+      onUpdate();
+      setIsEditing(false);
+    } catch {
+      // Axios interceptor already handles the error toast.
+    }
+  }
+
+  function handleEdit() {
+    setFormData({
+      linkedinUrl: profile.linkedinUrl ?? "",
+      githubUrl: profile.githubUrl ?? "",
+      portfolioUrl: profile.portfolioUrl ?? "",
+    });
+
+    setIsEditing(true);
+  }
+
+  function handleCancel() {
+    setFormData({
+      linkedinUrl: profile.linkedinUrl ?? "",
+      githubUrl: profile.githubUrl ?? "",
+      portfolioUrl: profile.portfolioUrl ?? "",
+    });
+
+    setIsEditing(false);
+  }
 
   return (
     <div className="rounded-2xl border border-[#E5EAE7] bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-bold text-[#212529]">Social Links</h3>
         {!isEditing ? (
-          <button onClick={() => setIsEditing(true)} className="text-[#75837D] hover:text-[#315343] transition-colors">
+          <button onClick={handleEdit} className="text-[#75837D] hover:text-[#315343] transition-colors">
             <Edit2 size={16} />
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <button onClick={() => setIsEditing(false)} className="text-[#75837D] hover:text-red-500 transition-colors">
+            <button onClick={handleCancel} className="text-[#75837D] hover:text-red-500 transition-colors">
               <X size={18} />
             </button>
             <button onClick={handleSave} disabled={loading} className="text-[#315343] hover:text-green-600 transition-colors">
@@ -58,7 +99,7 @@ export default function SocialLinksCard({ profile, onUpdate }: Props) {
         <div>
           <label className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-[#212529]">
             {/* Use SiLinkedin here */}
-            <SiLinkerd size={16} className="text-[#0A66C2]" /> LinkedIn
+            <FaLinkedin size={16} className="text-[#0A66C2]" /> LinkedIn
           </label>
           {isEditing ? (
             <input

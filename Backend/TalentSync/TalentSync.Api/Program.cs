@@ -13,6 +13,7 @@ using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Application.Mappings.UserMappings;
 using TalentSync.Application.Services;
+using TalentSync.Application.Services.Dashboards;
 using TalentSync.Application.Services.Notifications;
 using TalentSync.Application.Services.Recruitment;
 using TalentSync.Infrastructure.Notifications;
@@ -108,6 +109,7 @@ builder.Services.AddScoped<ISelectionRepository, SelectionRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
+builder.Services.AddScoped<ICandidateDashboardService, CandidateDashboardService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

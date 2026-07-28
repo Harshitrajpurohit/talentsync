@@ -13,5 +13,9 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<List<Interview>> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken);
         void Update(Interview interview);
         Task<List<Interview>> GetByInterviewerIdAsync(Guid interviewerId, CancellationToken cancellationToken);
+
+        Task<int> GetUpcomingInterviewCountAsync( Guid candidateId, CancellationToken cancellationToken);
+
+        Task<List<Interview>> GetUpcomingInterviewsAsync(Guid candidateId, int count, CancellationToken cancellationToken);
     }
 }

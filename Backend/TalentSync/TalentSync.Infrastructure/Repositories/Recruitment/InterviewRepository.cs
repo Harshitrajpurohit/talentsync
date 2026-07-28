@@ -71,5 +71,33 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .OrderByDescending(i => i.ScheduledAt)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<int> GetUpcomingInterviewCountAsync(Guid candidateId, CancellationToken cancellationToken)
+        {
+            return await _context.Interviews
+                .CountAsync(i =>
+                    i.Application.CandidateId == candidateId &&
+                    !i.IsDeleted &&
+                    i.Status == InterviewStatus.Scheduled &&
+                    i.ScheduledAt >= DateTime.UtcNow,
+                    cancellationToken);
+        }
+
+        public async Task<List<Interview>> GetUpcomingInterviewsAsync(Guid candidateId, int count, CancellationToken cancellationToken)
+        {
+            return await _context.Interviews
+                .AsNoTracking()
+                .Include(i => i.Application)
+                    .ThenInclude(a => a.Job)
+                .Include(i => i.Interviewer)
+                .Where(i =>
+                    i.Application.CandidateId == candidateId &&
+                    !i.IsDeleted &&
+                    i.Status == InterviewStatus.Scheduled &&
+                    i.ScheduledAt >= DateTime.UtcNow)
+                .OrderBy(i => i.ScheduledAt)
+                .Take(count)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

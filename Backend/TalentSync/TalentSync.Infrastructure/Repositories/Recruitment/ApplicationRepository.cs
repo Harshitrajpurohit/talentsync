@@ -119,5 +119,49 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
         {
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<int> GetTotalApplicationsAsync(Guid candidateId,CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                .CountAsync(a =>
+                    a.CandidateId == candidateId &&
+                    !a.IsDeleted,
+                    cancellationToken);
+        }
+
+        public async Task<int> GetActiveApplicationsAsync(Guid candidateId,CancellationToken cancellationToken){
+            return await _context.Applications
+                .CountAsync(a =>
+                    a.CandidateId == candidateId &&
+                    !a.IsDeleted &&
+                    (a.Status == ApplicationStatus.Submitted ||
+                     a.Status == ApplicationStatus.Screening ||
+                     a.Status == ApplicationStatus.InterviewScheduled ||
+                     a.Status == ApplicationStatus.InterviewCompleted),
+                    cancellationToken);
+        }
+
+        public async Task<int> GetSelectedApplicationsAsync(Guid candidateId, CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                .CountAsync(a =>
+                    a.CandidateId == candidateId &&
+                    !a.IsDeleted &&
+                    a.Status == ApplicationStatus.Selected,
+                    cancellationToken);
+        }
+
+        public async Task<List<ApplicationEntity>> GetRecentApplicationsAsync(Guid candidateId, int count, CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                .AsNoTracking()
+                .Include(a => a.Job)
+                .Where(a =>
+                    a.CandidateId == candidateId &&
+                    !a.IsDeleted)
+                .OrderByDescending(a => a.SubmittedDate)
+                .Take(count)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

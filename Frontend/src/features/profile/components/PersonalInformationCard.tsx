@@ -22,26 +22,78 @@ export default function PersonalInformationCard({ profile, onUpdate }: Props) {
   });
   
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-
-        const payload: UpdateProfileRequest = {
-            ...formData,
-            phone: formData.phone || undefined,
-            gender: formData.gender || undefined,
-            address: formData.address || undefined,
-            about: formData.about || undefined,
-            linkedinUrl: formData.linkedinUrl || undefined,
-            githubUrl: formData.githubUrl || undefined,
-            portfolioUrl: formData.portfolioUrl || undefined,
-            dateOfBirth: formData.dateOfBirth || undefined,
-        };
-
-        await update(payload);
-
-        setIsEditing(false);
-        onUpdate();
+    function hasProfileChanged(
+      profile: Profile,
+      payload: UpdateProfileRequest
+    ) {
+      return (
+        profile.name !== payload.name ||
+        (profile.phone ?? undefined) !== payload.phone ||
+        (profile.gender ?? undefined) !== payload.gender ||
+        (profile.address ?? undefined) !== payload.address ||
+        (profile.about ?? undefined) !== payload.about ||
+        (profile.linkedinUrl ?? undefined) !== payload.linkedinUrl ||
+        (profile.githubUrl ?? undefined) !== payload.githubUrl ||
+        (profile.portfolioUrl ?? undefined) !== payload.portfolioUrl ||
+        (profile.dateOfBirth?.split("T")[0] ?? undefined) !== payload.dateOfBirth
+      );
     }
+
+    async function handleSubmit(e: React.FormEvent) {
+      e.preventDefault();
+
+      const payload: UpdateProfileRequest = {
+        name: formData.name.trim(),
+        phone: formData.phone?.trim() || undefined,
+        gender: formData.gender || undefined,
+        address: formData.address?.trim() || undefined,
+        about: formData.about?.trim() || undefined,
+        linkedinUrl: formData.linkedinUrl?.trim() || undefined,
+        githubUrl: formData.githubUrl?.trim() || undefined,
+        portfolioUrl: formData.portfolioUrl?.trim() || undefined,
+        dateOfBirth: formData.dateOfBirth || undefined,
+      };
+
+      if (!hasProfileChanged(profile, payload)) {
+        setIsEditing(false);
+        return;
+      }
+
+      try {
+        await update(payload);
+        onUpdate();
+        setIsEditing(false);
+      } catch {
+        // Axios interceptor already shows the error toast.
+      }
+    }
+
+    function handleEdit() {
+    setFormData({
+      name: profile.name,
+      phone: profile.phone ?? "",
+      dateOfBirth: profile.dateOfBirth ?? "",
+      gender: profile.gender ?? "",
+      address: profile.address ?? "",
+      about: profile.about ?? "",
+    });
+
+    setIsEditing(true);
+  }
+
+  function handleCancel() {
+    setFormData({
+      name: profile.name,
+      phone: profile.phone ?? "",
+      dateOfBirth: profile.dateOfBirth ?? "",
+      gender: profile.gender ?? "",
+      address: profile.address ?? "",
+      about: profile.about ?? "",
+    });
+
+    setIsEditing(false);
+  }
+
 
   return (
     <div className="rounded-2xl border border-[#E5EAE7] bg-white p-6 shadow-sm lg:p-8">
@@ -49,7 +101,7 @@ export default function PersonalInformationCard({ profile, onUpdate }: Props) {
         <h2 className="text-xl font-bold text-[#212529]">Personal Information</h2>
         {!isEditing && (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={handleEdit}
             className="flex items-center gap-2 rounded-lg bg-[#EEF3F0] px-3 py-1.5 text-sm font-semibold text-[#315343] transition hover:bg-[#E5EAE7]"
           >
             <Edit2 size={14} /> Edit
@@ -152,7 +204,7 @@ export default function PersonalInformationCard({ profile, onUpdate }: Props) {
           <div className="flex items-center justify-end gap-3 border-t border-[#E5EAE7] pt-5">
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
+              onClick={handleCancel}
               className="rounded-[10px] px-4 py-2.5 text-sm font-semibold text-[#75837D] transition hover:bg-[#EEF3F0]"
             >
               Cancel

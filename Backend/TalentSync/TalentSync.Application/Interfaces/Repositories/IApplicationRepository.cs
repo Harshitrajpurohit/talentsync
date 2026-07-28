@@ -23,5 +23,13 @@ namespace TalentSync.Application.Interfaces.Repositories
         void Delete(ApplicationEntity application);
         Task SaveChangesAsync(CancellationToken cancellationToken);
 
+        Task<int> GetTotalApplicationsAsync(Guid candidateId, CancellationToken cancellationToken);
+        Task<int> GetActiveApplicationsAsync(Guid candidateId, CancellationToken cancellationToken);
+        Task<int> GetSelectedApplicationsAsync(Guid candidateId, CancellationToken cancellationToken);
+        Task<List<ApplicationEntity>> GetRecentApplicationsAsync(
+            Guid candidateId,
+            int count,
+            CancellationToken cancellationToken);
+
     }
 }

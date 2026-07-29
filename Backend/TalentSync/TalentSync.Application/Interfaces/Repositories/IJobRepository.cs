@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
+using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Domain.Entities.Recruitment;
 
 namespace TalentSync.Application.Interfaces.Repositories
@@ -12,7 +13,9 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<int> GetOpenJobsCountAsync(CancellationToken cancellationToken);
         Task<Job> AddAsync(Job job, CancellationToken cancellationToken);
         Task<Job?> GetJobByIdAsync(Guid id, CancellationToken cancellationToken);
-        Task<List<Job>> GetPagedJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<Job?> GetCandidateJobByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<List<CandidateJobListDto>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest, Guid candidateId, CancellationToken cancellationToken);
+        Task<List<Job>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
         void UpdateJob(Job job);
         void DeleteJob(Job job);
         Task<List<Job>> GetJobsByHRIdAsync(Guid hrId, CancellationToken cancellationToken);

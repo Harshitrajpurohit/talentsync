@@ -18,6 +18,8 @@ namespace TalentSync.Application.Mappings.Recruitment
                     opts.Condition((src, dest, srcMember) =>
                         srcMember != null));
 
+            CreateMap<Job, CandidateJobListDto>();
+            CreateMap<Job, CandidateJobDetailsDto>();
 
         }
     }

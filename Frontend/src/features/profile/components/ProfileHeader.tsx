@@ -43,6 +43,7 @@ export default function ProfileHeader({ profile, resume,  role }: Props) {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#E5EAE7] bg-white shadow-sm">
       {/* Top Accent Bar */}

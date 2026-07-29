@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
+using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Enums.Recruitment;
@@ -39,7 +40,44 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
             return await _context.Jobs.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
         }
 
-        public async Task<List<Job>> GetPagedJobsAsync(PaginationRequest paginationRequest , CancellationToken cancellationToken)
+        public async Task<Job?> GetCandidateJobByIdAsync( Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Jobs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    j => j.Id == id &&
+                         !j.IsDeleted &&
+                         j.Status == JobStatus.Open,
+                    cancellationToken);
+        }
+
+        public async Task<List<CandidateJobListDto>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest, Guid candidateId, CancellationToken cancellationToken)
+        {
+            return await _context.Jobs
+                .AsNoTracking()
+                .Where(j =>
+                    !j.IsDeleted &&
+                    j.Status == JobStatus.Open)
+                .OrderByDescending(j => j.CreatedAt)
+                .Skip(paginationRequest.PageSize *
+                      (paginationRequest.PageNumber - 1))
+                .Take(paginationRequest.PageSize)
+                .Select(j => new CandidateJobListDto
+                {
+                    Id = j.Id,
+                    Title = j.Title,
+                    Department = j.Department,
+                    PostedDate = j.PostedDate,
+                    Status = j.Status,
+
+                    HasApplied = j.Applications
+                        .Any(a => a.CandidateId == candidateId)
+                })
+                .ToListAsync(cancellationToken);
+        }
+
+
+        public async Task<List<Job>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest , CancellationToken cancellationToken)
         {
             return await _context.Jobs.AsNoTracking()
                 .Where(j => !j.IsDeleted && j.Status == JobStatus.Open)

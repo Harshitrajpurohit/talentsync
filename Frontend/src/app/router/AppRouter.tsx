@@ -7,6 +7,10 @@ import RegisterPage from "../../features/auth/pages/RegisterPage";
 import DashboardLayout from "../layouts/DashboardLayout";
 import JobsPage from "../../features/jobs/pages/JobsPage";
 import ProfilePage from "../../features/profile";
+import CandidateApplicationsPage from "../../features/candidate/pages/CandidateApplicationsPage";
+import CandidateJobsPage from "../../features/candidate/pages/CandidateJobsPage";
+import CandidateJobDetailsPage from "../../features/candidate/pages/CandidateJobDetailsPage";
+import NotificationsPage from "../../features/notifications/pages/NotificationsPage";
 
 
 
@@ -37,7 +41,25 @@ const AppRouter = () => (
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/unauthorized" element={<h1>403 - Unauthorized</h1>} />
       <Route path="*" element={<h1>404 - Page Not Found</h1>} />
-
+      <Route element={
+          <ProtectedRoute
+            allowedRoles={[
+              "Admin",
+              "Recruiter",
+              "Candidate",
+              "Employee",
+              "HR",
+              "Manager",
+            ]}
+          />
+        }>
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="/notifications"
+            element={<NotificationsPage />}
+          />
+        </Route>
+      </Route>
 
 
       {/* ===================== Admin ===================== */}
@@ -87,8 +109,9 @@ const AppRouter = () => (
 
           <Route path="/candidate" element={<CandidateDashboard />} />
 
-          <Route path="/candidate/jobs" element={<JobsPage/>} />
-          <Route path="/candidate/applications" element={<>My Applications</>} />
+          <Route path="/candidate/jobs" element={<CandidateJobsPage />} />
+          <Route path="/candidate/jobs/:id" element={<CandidateJobDetailsPage />}/>
+          <Route path="/candidate/applications" element={<CandidateApplicationsPage/>} />
           <Route path="/candidate/interviews" element={<>Interviews</>} />
           <Route path="/candidate/profile" element={<ProfilePage/>} />
           <Route path="/candidate/settings" element={<>Settings</>} />

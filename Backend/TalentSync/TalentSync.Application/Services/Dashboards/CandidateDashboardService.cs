@@ -7,6 +7,7 @@ using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Entities.User;
+using TalentSync.Domain.Enums.User;
 
 namespace TalentSync.Application.Services.Dashboards
 {
@@ -98,26 +99,31 @@ namespace TalentSync.Application.Services.Dashboards
             }
 
             int completedFields = 0;
-            const int totalFields = 7;
+
+            const int totalFields = 12;
 
             if (!string.IsNullOrWhiteSpace(user.Name))
                 completedFields++;
-
+            if (!string.IsNullOrWhiteSpace(user.Email))
+                completedFields++;
             if (!string.IsNullOrWhiteSpace(user.Phone))
                 completedFields++;
-
+            if (!string.IsNullOrWhiteSpace(user.ProfilePictureUrl))
+                completedFields++;
             if (!string.IsNullOrWhiteSpace(user.About))
                 completedFields++;
-
             if (!string.IsNullOrWhiteSpace(user.Address))
                 completedFields++;
-
             if (user.DateOfBirth != null)
                 completedFields++;
-
             if (!string.IsNullOrWhiteSpace(user.Gender))
                 completedFields++;
-
+            if (!string.IsNullOrWhiteSpace(user.LinkedinUrl))
+                completedFields++;
+            if (!string.IsNullOrWhiteSpace(user.GithubUrl))
+                completedFields++;
+            if (!string.IsNullOrWhiteSpace(user.PortfolioUrl))
+                completedFields++;
             if (resumeUploaded)
                 completedFields++;
 

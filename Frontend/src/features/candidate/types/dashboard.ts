@@ -1,17 +1,4 @@
-
-export type ApplicationStatus =
-  | "Submitted"
-  | "Screening"
-  | "InterviewScheduled"
-  | "InterviewCompleted"
-  | "Selected"
-  | "Rejected";
-
-export type InterviewStatus =
-  | "Scheduled"
-  | "Completed"
-  | "Cancelled"
-  | "Rescheduled";
+import type { ApplicationStatus, InterviewStatus } from "../../../shared/types/recruitment";
 
 export interface DashboardApplication {
   id: string;

@@ -48,8 +48,6 @@ namespace TalentSync.Api.Controllers.Recruitment
         public async Task<IActionResult> GetAllJobsAsync([FromQuery]PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             PaginationResponse<JobListDto> jobLists = await _jobService.GetAllJobsAsync(paginationRequest, cancellationToken);
-            Console.WriteLine(jobLists.PageNumber);
-            Console.WriteLine(jobLists.PageSize);
             return Ok(jobLists);
         }
 
@@ -71,6 +69,28 @@ namespace TalentSync.Api.Controllers.Recruitment
             bool isDeleted = await _jobService.DeleteJobAsync(Id, userId, cancellationToken);
 
             return NoContent();
+        }
+
+
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("candidate")]
+        public async Task<IActionResult> GetCandidateJobsAsync([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            var candidateId = User.GetUserId();
+            PaginationResponse<CandidateJobListDto> jobs = await _jobService.GetCandidateJobsAsync(candidateId, paginationRequest, cancellationToken);
+
+            return Ok(jobs);
+        }
+
+
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("candidate/{Id:guid}")]
+        public async Task<IActionResult> GetCandidateJobByIdAsync(Guid Id, CancellationToken cancellationToken)
+        {
+            var candidateId = User.GetUserId();
+            CandidateJobDetailsDto job = await _jobService.GetCandidateJobByIdAsync(Id, candidateId, cancellationToken);
+
+            return Ok(job);
         }
 
     }

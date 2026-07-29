@@ -134,7 +134,7 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .CountAsync(a =>
                     a.CandidateId == candidateId &&
                     !a.IsDeleted &&
-                    (a.Status == ApplicationStatus.Submitted ||
+                    (
                      a.Status == ApplicationStatus.Screening ||
                      a.Status == ApplicationStatus.InterviewScheduled ||
                      a.Status == ApplicationStatus.InterviewCompleted),

@@ -45,6 +45,7 @@ namespace TalentSync.Api.Controllers.Recruitment
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
+            Console.WriteLine("hello");
             var application = await _applicationService.GetByIdAsync(id, cancellationToken);
             return Ok(application);
         }
@@ -57,12 +58,12 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(applications);
         }
 
-        [Authorize(Roles = "Candidate,Admin")]
+        [Authorize(Roles = "Candidate")]
         [HttpGet("candidate")]
         public async Task<IActionResult> GetByCandidate(CancellationToken cancellationToken)
         {
             Guid candidateId = User.GetUserId();
-            var applications = await _applicationService.GetByCandidateIdAsync(candidateId, cancellationToken);
+            List<ApplicationWithDetailsResponseDto> applications = await _applicationService.GetByCandidateIdAsync(candidateId, cancellationToken);
             return Ok(applications);
         }
 

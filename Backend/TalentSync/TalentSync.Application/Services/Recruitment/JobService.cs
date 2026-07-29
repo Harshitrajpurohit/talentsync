@@ -24,14 +24,16 @@ namespace TalentSync.Application.Services.Recruitment
         private readonly IUserRepository _userRepository;
         private readonly INotificationService _notificationService;
         private readonly ILogger<JobService> _logger;
+        private readonly IApplicationRepository _applicationRepository;
 
-        public JobService(IJobRepository jobRepository, IMapper mapper, IUserRepository userRepository, INotificationService notificationService, ILogger<JobService> logger)
+        public JobService(IJobRepository jobRepository, IMapper mapper, IUserRepository userRepository, INotificationService notificationService, ILogger<JobService> logger, IApplicationRepository applicationRepository)
         {
             _jobRepository = jobRepository;
             _mapper = mapper;
             _userRepository = userRepository;
             _notificationService = notificationService;
             _logger = logger;
+            _applicationRepository = applicationRepository;
         }
 
         public async Task<JobResponseDto> CreateJobAsync(CreateJobDto jobDto, Guid hrId, CancellationToken cancellationToken)
@@ -69,7 +71,7 @@ namespace TalentSync.Application.Services.Recruitment
 
         public async Task<PaginationResponse<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            List<Job> jobs = await _jobRepository.GetPagedJobsAsync(paginationRequest, cancellationToken);
+            List<Job> jobs = await _jobRepository.GetPagedOpenJobsAsync(paginationRequest, cancellationToken);
             int totalCount = await _jobRepository.CountAsync(cancellationToken);
 
             List<JobListDto> result = _mapper.Map<List<JobListDto>>(jobs);
@@ -132,6 +134,35 @@ namespace TalentSync.Application.Services.Recruitment
 
         }
 
+        public async Task<PaginationResponse<CandidateJobListDto>> GetCandidateJobsAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            List<CandidateJobListDto> jobs =await _jobRepository.GetPagedOpenJobsAsync( paginationRequest, candidateId, cancellationToken);
+
+            int totalCount = await _jobRepository.GetOpenJobsCountAsync(cancellationToken);
+
+            return new PaginationResponse<CandidateJobListDto>(
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                totalCount,
+                jobs
+            );
+        }
+
+        public async Task<CandidateJobDetailsDto> GetCandidateJobByIdAsync(Guid id, Guid candidateId, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Fetching candidate job details for JobId: {JobId}", id);
+
+            Job job = await _jobRepository.GetCandidateJobByIdAsync(id,cancellationToken)?? throw new KeyNotFoundException("Job Not Found.");
+
+            bool isApplicationExists = await _applicationRepository.ExistsAsync(id, candidateId, cancellationToken);
+
+            CandidateJobDetailsDto candidateJobDetails =  _mapper.Map<CandidateJobDetailsDto>(job);
+            candidateJobDetails.HasApplied = isApplicationExists;
+
+            return candidateJobDetails;
+        }
+
+
 
         // private 
         private static void ValidateUserStatus(User? user)
@@ -146,5 +177,7 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new InvalidOperationException("User account is not active.");
             }
         }
+
+
     }
 }

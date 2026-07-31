@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { applicationApi } from "../../api/applications/applicationApi";
 
-import type { CreateApplicationRequest } from "../../types/application";
+import type { CreateApplicationRequest } from "../../../application/types/application";
 
 export function useCreateApplication() {
   const [loading, setLoading] = useState(false);

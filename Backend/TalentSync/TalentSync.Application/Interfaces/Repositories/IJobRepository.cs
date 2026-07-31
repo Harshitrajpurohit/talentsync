@@ -20,6 +20,7 @@ namespace TalentSync.Application.Interfaces.Repositories
         void DeleteJob(Job job);
         Task<List<Job>> GetJobsByHRIdAsync(Guid hrId, CancellationToken cancellationToken);
         Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<List<Job>> GetRecentJobsAsync(int count, CancellationToken cancellationToken);
 
     }
 }

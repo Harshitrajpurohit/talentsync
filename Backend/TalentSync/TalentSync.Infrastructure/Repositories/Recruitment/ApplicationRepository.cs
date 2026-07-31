@@ -93,6 +93,19 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<ApplicationEntity>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                .Include(a => a.Job)
+                .Include(a => a.Candidate)
+                .Where(a => a.CandidateId == candidateId && !a.IsDeleted)
+                .OrderByDescending(a => a.SubmittedDate)
+                .Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1))
+                .Take(paginationRequest.PageSize)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
         public async Task<bool> ExistsAsync(Guid jobId, Guid candidateId, CancellationToken cancellationToken)
         {
             return await _context.Applications
@@ -159,6 +172,19 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .Where(a =>
                     a.CandidateId == candidateId &&
                     !a.IsDeleted)
+                .OrderByDescending(a => a.SubmittedDate)
+                .Take(count)
+                .ToListAsync(cancellationToken);
+        }
+
+
+        public async Task<List<ApplicationEntity>> GetRecentApplicationsAsync(int count, CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                .AsNoTracking()
+                .Include(a => a.Job)
+                .Include(a => a.Candidate)
+                .Where(a => !a.IsDeleted)
                 .OrderByDescending(a => a.SubmittedDate)
                 .Take(count)
                 .ToListAsync(cancellationToken);

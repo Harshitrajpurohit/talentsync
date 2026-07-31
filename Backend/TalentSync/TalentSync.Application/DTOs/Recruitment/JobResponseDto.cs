@@ -16,5 +16,6 @@ namespace TalentSync.Application.DTOs.Recruitment
         public JobStatus Status { get; set; }
         public Guid HRId { get; set; }
 
+
     }
 }

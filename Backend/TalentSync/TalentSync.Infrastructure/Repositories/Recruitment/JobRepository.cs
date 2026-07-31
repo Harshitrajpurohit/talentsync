@@ -117,5 +117,15 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
         {
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<List<Job>> GetRecentJobsAsync(int count, CancellationToken cancellationToken)
+        {
+            return await _context.Jobs
+                .AsNoTracking()
+                .Where(j => !j.IsDeleted)
+                .OrderByDescending(j => j.PostedDate)
+                .Take(count)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

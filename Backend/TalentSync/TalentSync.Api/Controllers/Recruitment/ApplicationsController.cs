@@ -58,6 +58,17 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(applications);
         }
 
+        
+        [Authorize(Roles = "HR,Recruiter")]
+        [HttpGet("candidate/{candidateId}")]
+        public async Task<IActionResult> GetByCandidate(Guid candidateId,[FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+
+            PaginationResponse<ApplicationWithDetailsResponseDto> applications = await _applicationService.GetPagedByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
+            Console.WriteLine(applications.Data.Count);
+            return Ok(applications);
+        }
+
         [Authorize(Roles = "Candidate")]
         [HttpGet("candidate")]
         public async Task<IActionResult> GetByCandidate(CancellationToken cancellationToken)

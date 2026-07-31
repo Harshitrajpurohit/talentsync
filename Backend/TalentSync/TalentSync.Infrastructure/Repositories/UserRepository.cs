@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
-using TalentSync.Application.Common.Pagination;
 using TalentSync.Domain.Entities.User;
+using TalentSync.Domain.Enums.User;
 using TalentSync.Infrastructure.Persistence;
 
 namespace TalentSync.Infrastructure.Repositories
@@ -93,6 +94,35 @@ namespace TalentSync.Infrastructure.Repositories
         public async Task<User?> GetUserByPhoneNumberAsync(string phone, CancellationToken cancellationToken)
         {
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Phone == phone, cancellationToken);
+        }
+
+        public async Task<int> CountCandidatesAsync( CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u =>
+                    !u.IsDeleted &&
+                    u.UserRoles.Any(ur => ur.Role.Name == RoleName.Candidate))
+                .CountAsync(cancellationToken);
+        }
+
+        public async Task<List<User>> GetCandidatesAsync(
+            PaginationRequest paginationRequest,
+            Guid roleId,
+            CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Where(u =>
+                    !u.IsDeleted 
+                    && u.UserRoles.Any(ur => ur.RoleId == roleId)
+                    )
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
+                .Take(paginationRequest.PageSize)
+                .ToListAsync(cancellationToken);
         }
     }
 }

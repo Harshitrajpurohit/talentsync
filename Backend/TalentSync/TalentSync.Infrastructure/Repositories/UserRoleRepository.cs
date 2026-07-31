@@ -83,5 +83,17 @@ namespace TalentSync.Infrastructure.Repositories
         {
             return await _context.UserRoles.AsNoTracking().CountAsync(u => !u.IsDeleted, cancellationToken);
         }
+
+        public async Task<int> GetCandidateCountAsync(CancellationToken cancellationToken)
+        {
+            return await _context.UserRoles
+                .AsNoTracking()
+                .Where(ur =>
+                    !ur.User.IsDeleted &&
+                    ur.Role.Name == Domain.Enums.User.RoleName.Candidate)
+                .Select(ur => ur.UserId)
+                .Distinct()
+                .CountAsync(cancellationToken);
+        }
     }
 }

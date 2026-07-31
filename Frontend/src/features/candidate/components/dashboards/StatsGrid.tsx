@@ -5,7 +5,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-import { StatCard } from "./StatCard";
+import { StatCard } from "../../../../shared/components/StatCard";
 
 interface StatsGridProps {
   stats: {

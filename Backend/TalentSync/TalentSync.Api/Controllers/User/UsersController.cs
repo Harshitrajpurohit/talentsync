@@ -30,6 +30,7 @@ namespace TalentSync.Api.Controllers.User
             return Ok(response);
         }
 
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
         {
@@ -75,6 +76,8 @@ namespace TalentSync.Api.Controllers.User
         }
 
 
+
+
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfileAsync(
             CancellationToken cancellationToken)
@@ -100,6 +103,18 @@ namespace TalentSync.Api.Controllers.User
                     cancellationToken);
 
             return Ok(response);
+        }
+
+        [Authorize(Roles = "HR,Recruiter,Manager")]
+        [HttpGet("candidates")]
+        public async Task<IActionResult> GetCandidatesAsync([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+
+            var paginationResponse = await _userService.GetCandidatesAsync(
+                paginationRequest,
+                cancellationToken);
+
+            return Ok(paginationResponse);
         }
 
     }

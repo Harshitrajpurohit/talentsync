@@ -18,6 +18,7 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<List<ApplicationEntity>> GetPagedApplicationsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<List<ApplicationEntity>> GetByJobIdAsync(Guid jobId, CancellationToken cancellationToken);
         Task<List<ApplicationEntity>> GetByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken);
+        Task<List<ApplicationEntity>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(Guid jobId, Guid candidateId, CancellationToken cancellationToken);
         void Update(ApplicationEntity application);
         void Delete(ApplicationEntity application);
@@ -28,6 +29,10 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<int> GetSelectedApplicationsAsync(Guid candidateId, CancellationToken cancellationToken);
         Task<List<ApplicationEntity>> GetRecentApplicationsAsync(
             Guid candidateId,
+            int count,
+            CancellationToken cancellationToken);
+
+        Task<List<ApplicationEntity>> GetRecentApplicationsAsync(
             int count,
             CancellationToken cancellationToken);
 

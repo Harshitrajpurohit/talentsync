@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { applicationApi } from "../../api/applications/applicationApi";
 
-import type { ApplicationWithDetails } from "../../types/application";
+import type { ApplicationWithDetails } from "../../../application/types/application";
 
 export function useApplications() {
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([]);

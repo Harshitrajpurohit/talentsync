@@ -15,5 +15,6 @@ namespace TalentSync.Application.Interfaces.Services
         Task<List<ApplicationWithDetailsResponseDto>> GetByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken);
         Task<ApplicationResponseDto?> UpdateApplicationAsync(Guid id, UpdateApplicationRequestDto updateApplicationRequestDto, CancellationToken cancellationToken);
         Task<bool> DeleteApplicationAsync(Guid id, CancellationToken cancellationToken);
+        Task<PaginationResponse<ApplicationWithDetailsResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
     }
 }

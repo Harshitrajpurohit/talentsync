@@ -18,5 +18,6 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<List<UserRoleResponseWithExtraDto>> GetAllUserRolesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<int> CountUserRoleAsync(CancellationToken cancellationToken);
         Task<int> CountActiveUserRoleAsync(CancellationToken cancellationToken);
+        Task<int> GetCandidateCountAsync(CancellationToken cancellationToken);
     }
 }

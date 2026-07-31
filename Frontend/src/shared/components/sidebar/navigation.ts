@@ -177,11 +177,11 @@ export const navigation: Record<UserRole, SidebarItem[]> = {
       path: "/hr/applications",
       icon: ClipboardList,
     },
-    {
-      title: "Reports",
-      path: "/hr/reports",
-      icon: FileBarChart2,
-    },
+    // {
+    //   title: "Reports",
+    //   path: "/hr/reports",
+    //   icon: FileBarChart2,
+    // },
     {
       title: "Profile",
       path: "/hr/profile",

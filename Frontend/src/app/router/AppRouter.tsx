@@ -2,15 +2,17 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import LoginPage from "../../features/auth/pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
-import { AdminDashboard, CandidateDashboard, EmployeeDashboard, HrDashboard, ManagerDashboard, RecruiterDashboard } from "../../features";
+import { AdminDashboard, CandidateDashboard, EmployeeDashboard, ManagerDashboard, RecruiterDashboard } from "../../features";
 import RegisterPage from "../../features/auth/pages/RegisterPage";
 import DashboardLayout from "../layouts/DashboardLayout";
-import JobsPage from "../../features/jobs/pages/JobsPage";
 import ProfilePage from "../../features/profile";
 import CandidateApplicationsPage from "../../features/candidate/pages/CandidateApplicationsPage";
 import CandidateJobsPage from "../../features/candidate/pages/CandidateJobsPage";
 import CandidateJobDetailsPage from "../../features/candidate/pages/CandidateJobDetailsPage";
 import NotificationsPage from "../../features/notifications/pages/NotificationsPage";
+import HrDashboardPage from "../../features/hr/pages/HrDashboardPage";
+import { CandidateDetailsPage, CandidatesPage } from "../../features/hr";
+
 
 
 
@@ -141,13 +143,15 @@ const AppRouter = () => (
       <Route element={<ProtectedRoute allowedRoles={["HR"]} />}>
         <Route element={<DashboardLayout />}>
 
-          <Route path="/hr" element={<HrDashboard />} />
+          <Route path="/hr" element={<HrDashboardPage />} />
 
           <Route path="/hr/employees" element={<>Employees</>} />
-          <Route path="/hr/candidates" element={<>Candidates</>} />
+          <Route path="/hr/candidates" element={<CandidatesPage/>} />
+          <Route path="/hr/candidates/:id" element={<CandidateDetailsPage/>}/>
+
           <Route path="/hr/jobs" element={<>Jobs</>} />
           <Route path="/hr/applications" element={<>Applications</>} />
-          <Route path="/hr/reports" element={<>Reports</>} />
+          {/* <Route path="/hr/reports" element={<>Reports</>} /> */}
           <Route path="/hr/profile" element={<ProfilePage/>} />
           <Route path="/hr/settings" element={<>Settings</>} />
 

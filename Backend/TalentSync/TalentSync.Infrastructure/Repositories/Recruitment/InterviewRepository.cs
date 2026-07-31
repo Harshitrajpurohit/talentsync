@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.Recruitment;
 using TalentSync.Domain.Enums.Recruitment;
@@ -99,5 +100,65 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .Take(count)
                 .ToListAsync(cancellationToken);
         }
+        public async Task<int> GetTodayInterviewCountAsync(CancellationToken cancellationToken)
+        {
+            DateTime today = DateTime.UtcNow.Date;
+            DateTime tomorrow = today.AddDays(1);
+
+            return await _context.Interviews.CountAsync(i =>
+                !i.IsDeleted &&
+                i.Status == InterviewStatus.Scheduled &&
+                i.ScheduledAt >= today &&
+                i.ScheduledAt < tomorrow,
+                cancellationToken);
+        }
+
+        public async Task<List<Interview>> GetUpcomingInterviewsAsync(int count, CancellationToken cancellationToken)
+        {
+            return await _context.Interviews
+                .AsNoTracking()
+                .Include(i => i.Application)
+                    .ThenInclude(a => a.Job)
+                .Include(i => i.Application)
+                    .ThenInclude(a => a.Candidate)
+                .Include(i => i.Interviewer)
+                .Where(i =>
+                    !i.IsDeleted &&
+                    i.Status == InterviewStatus.Scheduled &&
+                    i.ScheduledAt >= DateTime.UtcNow)
+                .OrderBy(i => i.ScheduledAt)
+                .Take(count)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<int> CountByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken)
+        {
+            return await _context.Interviews
+                .AsNoTracking()
+                .CountAsync(i =>
+                    i.Application.CandidateId == candidateId &&
+                    !i.IsDeleted,
+                    cancellationToken);
+        }
+
+        public async Task<List<Interview>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            return await _context.Interviews
+                .AsNoTracking()
+                .Include(i => i.Application)
+                    .ThenInclude(a => a.Job)
+                .Include(i => i.Application)
+                    .ThenInclude(a => a.Candidate)
+                .Include(i => i.Interviewer)
+                .Where(i =>
+                    i.Application.CandidateId == candidateId &&
+                    !i.IsDeleted)
+                .OrderByDescending(i => i.ScheduledAt)
+                .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
+                .Take(paginationRequest.PageSize)
+                .ToListAsync(cancellationToken);
+        }
+
+
     }
 }

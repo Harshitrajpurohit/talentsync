@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.Recruitment;
 
 namespace TalentSync.Application.Interfaces.Services
@@ -13,5 +14,6 @@ namespace TalentSync.Application.Interfaces.Services
         Task<InterviewResponseDto> RescheduleInterviewAsync(Guid id, RescheduleInterviewDto rescheduleInterview, CancellationToken cancellationToken);
         Task<List<InterviewDetailedResponseDto>> InterviewsAssignedToInterviwerAsync(Guid interviewerId, CancellationToken cancellationToken);
         Task<InterviewDetailedResponseDto> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken);
+        Task<PaginationResponse<InterviewDetailedResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
     }
 }

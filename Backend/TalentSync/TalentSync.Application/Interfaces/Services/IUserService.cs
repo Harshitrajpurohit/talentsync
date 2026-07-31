@@ -15,5 +15,6 @@ namespace TalentSync.Application.Interfaces.Services
         Task<UserResponseDto> GetUserByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<UserResponseDto> RestoreUserAsync(Guid id, CancellationToken cancellationToken);
         Task<UserResponseDto> ChangeUserStatusAsync(Guid id, UserStatus newStatus, CancellationToken cancellationToken);
+        Task<PaginationResponse<UserResponseDto>> GetCandidatesAsync( PaginationRequest paginationRequest, CancellationToken cancellationToken);
     }
 }

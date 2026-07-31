@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { jobsApi } from "../api/jobsApi";
 
-import type { Job } from "../types";
+import type { Job } from "../types/job";
 
 export function useJob(id: string) {
   const [job, setJob] = useState<Job | null>(null);

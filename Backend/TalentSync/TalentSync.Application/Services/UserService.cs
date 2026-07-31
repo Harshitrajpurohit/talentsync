@@ -16,13 +16,15 @@ namespace TalentSync.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
-        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
+            _roleRepository = roleRepository;
         }
 
 
@@ -135,6 +137,30 @@ namespace TalentSync.Application.Services
             await _userRepository.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("User status updated successfully with ID {UserId}.", user.Id);
             return _mapper.Map<UserResponseDto>(user);
+        }
+
+        public async Task<PaginationResponse<UserResponseDto>> GetCandidatesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            Role? role = await _roleRepository.GetRoleByRoleNameAsync(RoleName.Candidate, cancellationToken);
+
+            if (role == null) {
+                throw new KeyNotFoundException("Role not found.");
+            }
+
+            int totalRecords = await _userRepository.CountCandidatesAsync(cancellationToken);
+
+            List<User> candidates = await _userRepository.GetCandidatesAsync(
+                paginationRequest, role.Id,
+                cancellationToken);
+
+            List<UserResponseDto> response = _mapper.Map<List<UserResponseDto>>(candidates);
+
+            return new PaginationResponse<UserResponseDto>(
+                
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                totalRecords,
+                response);
         }
     }
 }

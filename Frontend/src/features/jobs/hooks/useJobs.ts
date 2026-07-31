@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { jobsApi } from "../api/jobsApi";
 
-import type { JobListItem } from "../types";
+import type { JobListItem } from "../types/job";
 import type { PaginationResponse } from "../../../shared/types/pagination";
 
 export function useJobs(pageNumber: number, pageSize = 10) {

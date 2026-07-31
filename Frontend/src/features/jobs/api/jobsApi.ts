@@ -5,7 +5,7 @@ import type {
   UpdateJobRequest,
   JobResponse,
   JobListItem,
-} from "../types";
+} from "../types/job";
 
 import type {
   PaginationRequest,

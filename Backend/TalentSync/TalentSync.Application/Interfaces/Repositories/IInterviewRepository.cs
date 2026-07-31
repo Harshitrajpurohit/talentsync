@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Domain.Entities.Recruitment;
 
 namespace TalentSync.Application.Interfaces.Repositories
@@ -17,5 +18,12 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<int> GetUpcomingInterviewCountAsync( Guid candidateId, CancellationToken cancellationToken);
 
         Task<List<Interview>> GetUpcomingInterviewsAsync(Guid candidateId, int count, CancellationToken cancellationToken);
+        Task<int> GetTodayInterviewCountAsync(CancellationToken cancellationToken);
+
+        Task<List<Interview>> GetUpcomingInterviewsAsync(int count, CancellationToken cancellationToken);
+
+        Task<int> CountByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken);
+
+        Task<List<Interview>> GetPagedByCandidateIdAsync( Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
     }
 }

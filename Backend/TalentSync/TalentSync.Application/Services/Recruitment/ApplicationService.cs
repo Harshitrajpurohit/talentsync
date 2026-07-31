@@ -149,6 +149,29 @@ namespace TalentSync.Application.Services.Recruitment
             return applications;
         }
 
+        public async Task<PaginationResponse<ApplicationWithDetailsResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            User? candidate = await _userRepository.GetUserByIdAsync(candidateId, cancellationToken);
+            if (candidate == null || candidate.IsDeleted)
+            {
+                throw new KeyNotFoundException("Candidate Not Found");
+            }
+
+            int count = await _applicationRepository.GetTotalApplicationsAsync(candidateId, cancellationToken);
+
+            List<ApplicationEntity> list = await _applicationRepository.GetPagedByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
+
+            List<ApplicationWithDetailsResponseDto> applications = _mapper.Map<List<ApplicationWithDetailsResponseDto>>(list);
+
+
+            return new PaginationResponse<ApplicationWithDetailsResponseDto>(
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                count,
+                applications
+                );
+        }
+
         public async Task<ApplicationResponseDto?> UpdateApplicationAsync(Guid id, UpdateApplicationRequestDto updateApplicationRequestDto, CancellationToken cancellationToken)
         {
             var application = await _applicationRepository.GetByIdAsync(id, cancellationToken);
@@ -213,6 +236,7 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new InvalidOperationException("Candidate account is not active.");
             }
         }
+
 
     }
 }

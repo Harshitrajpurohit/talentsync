@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TalentSync.Api.Extensions;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Application.Interfaces.Services;
+using TalentSync.Application.Services.Recruitment;
 using TalentSync.Domain.Enums.Recruitment;
 
 namespace TalentSync.Api.Controllers.Recruitment
@@ -99,6 +101,15 @@ namespace TalentSync.Api.Controllers.Recruitment
             InterviewDetailedResponseDto interview = await _interviewService.GetByIdWithDetailsAsync(id, cancellationToken);
 
             return Ok(interview);
+        }
+
+        [Authorize(Roles = "HR,Recruiter,Manager")]
+        [HttpGet("candidate/{candidateId}")]
+        public async Task<IActionResult> GetByCandidate(Guid candidateId, [FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+
+            PaginationResponse<InterviewDetailedResponseDto> interviews = await _interviewService.GetPagedByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
+            return Ok(interviews);
         }
 
 

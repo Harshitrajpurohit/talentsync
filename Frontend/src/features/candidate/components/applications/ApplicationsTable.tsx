@@ -1,4 +1,4 @@
-import type { ApplicationWithDetails } from "../../types/application";
+import type { ApplicationWithDetails } from "../../../application/types/application";
 import ApplicationStatusBadge from "./ApplicationStatusBadge";
 
 interface ApplicationsTableProps {

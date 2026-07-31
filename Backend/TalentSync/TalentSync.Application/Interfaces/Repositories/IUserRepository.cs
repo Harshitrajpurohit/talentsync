@@ -20,5 +20,8 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<User?> GetUserByEmailIncludingDeletedAsync(string email, CancellationToken cancellationToken);
         Task<User?> GetUserByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken);
         Task<User?> GetUserByPhoneNumberAsync(string phone, CancellationToken cancellationToken);
+
+        Task<List<User>> GetCandidatesAsync(PaginationRequest paginationRequest, Guid roleId, CancellationToken cancellationToken);
+        Task<int> CountCandidatesAsync(CancellationToken cancellationToken);
     }
 }

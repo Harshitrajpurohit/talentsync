@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.Common.Workflow;
 using TalentSync.Application.DTOs.Notifications;
 using TalentSync.Application.DTOs.Recruitment;
@@ -270,6 +271,32 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<InterviewDetailedResponseDto>(interview);
         }
 
+        public async Task<PaginationResponse<InterviewDetailedResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            User? candidate = await _userRepository.GetUserByIdAsync(candidateId, cancellationToken);
+            if (candidate == null || candidate.IsDeleted)
+            {
+                throw new KeyNotFoundException("Candidate Not Found");
+            }
+
+            int totalRecords = await _interviewRepository.CountByCandidateIdAsync(candidateId, cancellationToken);
+
+            List<Interview> interviews =
+                await _interviewRepository.GetPagedByCandidateIdAsync(
+                    candidateId,
+                    paginationRequest,
+                    cancellationToken);
+
+            List<InterviewDetailedResponseDto> data = _mapper.Map<List<InterviewDetailedResponseDto>>(interviews);
+
+            return new PaginationResponse<InterviewDetailedResponseDto>(   
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                totalRecords,
+                data
+                );
+        }
+
 
         // private 
 
@@ -413,5 +440,6 @@ namespace TalentSync.Application.Services.Recruitment
                 cancellationToken);
         }
 
+        
     }
 }

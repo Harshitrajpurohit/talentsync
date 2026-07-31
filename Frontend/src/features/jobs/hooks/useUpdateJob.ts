@@ -5,7 +5,7 @@ import { jobsApi } from "../api/jobsApi";
 import type {
   UpdateJobRequest,
   JobResponse,
-} from "../types";
+} from "../types/job";
 
 export function useUpdateJob() {
   const [loading, setLoading] = useState(false);

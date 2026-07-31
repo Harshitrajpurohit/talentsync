@@ -5,7 +5,7 @@ import { jobsApi } from "../api/jobsApi";
 import type {
   CreateJobRequest,
   JobResponse,
-} from "../types";
+} from "../types/job";
 
 export function useCreateJob() {
   const [loading, setLoading] = useState(false);

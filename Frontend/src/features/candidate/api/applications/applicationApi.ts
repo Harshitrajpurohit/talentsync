@@ -4,7 +4,7 @@ import type {
   Application,
   ApplicationWithDetails,
   CreateApplicationRequest,
-} from "../../types/application";
+} from "../../../application/types/application";
 
 export const applicationApi = {
   createApplication: (request: CreateApplicationRequest) =>

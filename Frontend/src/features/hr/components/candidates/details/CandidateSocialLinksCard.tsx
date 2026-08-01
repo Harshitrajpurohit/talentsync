@@ -1,7 +1,4 @@
-import {
-  ExternalLink,
-  Globe,
-} from "lucide-react";
+import { ExternalLink, Globe } from "lucide-react";
 import { SiGithub } from '@icons-pack/react-simple-icons';
 import { FaLinkedin } from 'react-icons/fa';
 import type { User } from "../../../../../shared/types/user";
@@ -18,40 +15,39 @@ export default function CandidateSocialLinksCard({
       label: "LinkedIn",
       url: candidate.linkedinUrl,
       icon: FaLinkedin,
+      iconColor: "text-[#0A66C2]",
     },
     {
       label: "GitHub",
       url: candidate.githubUrl,
       icon: SiGithub,
+      iconColor: "text-[#181717]",
     },
     {
       label: "Portfolio",
       url: candidate.portfolioUrl,
       icon: Globe,
+      iconColor: "text-[#315343]",
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-[#E5EAE7] bg-white p-6 shadow-sm dark:border-[#315343] dark:bg-[#253f33]">
-      <h2 className="mb-5 text-lg font-semibold text-[#212529] dark:text-white">
+    <div className="rounded-2xl border border-[#E5EAE7] bg-white p-6 shadow-sm">
+      <h2 className="mb-5 text-lg font-bold text-[#212529]">
         Social Links
       </h2>
 
-      <div className="space-y-4">
-        {links.map(({ label, url, icon: Icon }) => (
+      <div className="space-y-3">
+        {links.map(({ label, url, icon: Icon, iconColor }) => (
           <div
             key={label}
-            className="flex items-center justify-between rounded-xl border border-[#E5EAE7] p-4 dark:border-[#315343]"
+            className="flex items-center justify-between rounded-xl border border-[#E5EAE7] p-3.5 transition-colors hover:border-[#315343]"
           >
             <div className="flex items-center gap-3">
-              <Icon
-                size={20}
-                className="text-[#315343] dark:text-[#C3F53C]"
-              />
-
+              <Icon size={20} className={iconColor} />
               <div>
-                <p className="font-medium">{label}</p>
-                <p className="text-xs text-[#75837D]">
+                <p className="text-sm font-bold text-[#212529]">{label}</p>
+                <p className="truncate w-40 text-xs font-medium text-[#75837D]">
                   {url ?? "Not Available"}
                 </p>
               </div>
@@ -62,9 +58,9 @@ export default function CandidateSocialLinksCard({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg p-2 transition hover:bg-[#315343]/10"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#75837D] transition hover:bg-[#EEF3F0] hover:text-[#315343]"
               >
-                <ExternalLink size={18} />
+                <ExternalLink size={16} />
               </a>
             )}
           </div>

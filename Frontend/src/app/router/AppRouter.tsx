@@ -11,7 +11,8 @@ import CandidateJobsPage from "../../features/candidate/pages/CandidateJobsPage"
 import CandidateJobDetailsPage from "../../features/candidate/pages/CandidateJobDetailsPage";
 import NotificationsPage from "../../features/notifications/pages/NotificationsPage";
 import HrDashboardPage from "../../features/hr/pages/HrDashboardPage";
-import { CandidateDetailsPage, CandidatesPage } from "../../features/hr";
+import { CandidateDetailsPage, CandidatesPage, EmployeesPage } from "../../features/hr";
+import JobsPage from "../../features/hr/pages/JobsPage";
 
 
 
@@ -145,11 +146,11 @@ const AppRouter = () => (
 
           <Route path="/hr" element={<HrDashboardPage />} />
 
-          <Route path="/hr/employees" element={<>Employees</>} />
+          <Route path="/hr/employees" element={<EmployeesPage/>} />
           <Route path="/hr/candidates" element={<CandidatesPage/>} />
           <Route path="/hr/candidates/:id" element={<CandidateDetailsPage/>}/>
 
-          <Route path="/hr/jobs" element={<>Jobs</>} />
+          <Route path="/hr/jobs" element={<JobsPage/>} />
           <Route path="/hr/applications" element={<>Applications</>} />
           {/* <Route path="/hr/reports" element={<>Reports</>} /> */}
           <Route path="/hr/profile" element={<ProfilePage/>} />

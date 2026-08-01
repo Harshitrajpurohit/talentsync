@@ -12,5 +12,8 @@ namespace TalentSync.Application.DTOs.Recruitment
         public string Department { get; set; } = string.Empty;
         public JobStatus Status { get; set; }
         public DateTime PostedDate { get; set; }
+        public Guid HRId { get; set; }
+        public string HrName { get; set; } = string.Empty;
+        public int ApplicationsCount { get; set; }
     }
 }

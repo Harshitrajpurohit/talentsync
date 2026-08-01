@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Domain.Entities.Recruitment;
 
@@ -9,18 +6,31 @@ namespace TalentSync.Application.Mappings.Recruitment
 {
     public class JobProfile : Profile
     {
-        public JobProfile() {
+        public JobProfile()
+        {
             CreateMap<CreateJobDto, Job>();
-            CreateMap<Job, JobResponseDto>();
-            CreateMap<Job, JobListDto>();
+
+            CreateMap<Job, JobResponseDto>()
+                .ForMember(
+                    dest => dest.HrName,
+                    opt => opt.MapFrom(src => src.HR.Name));
+
+            CreateMap<Job, JobListDto>()
+                .ForMember(
+                    dest => dest.HrName,
+                    opt => opt.MapFrom(src => src.HR.Name))
+                .ForMember(
+                    dest => dest.ApplicationsCount,
+                    opt => opt.MapFrom(src => src.Applications.Count));
+
             CreateMap<UpdateJobRequestDto, Job>()
                 .ForAllMembers(opts =>
                     opts.Condition((src, dest, srcMember) =>
                         srcMember != null));
 
             CreateMap<Job, CandidateJobListDto>();
-            CreateMap<Job, CandidateJobDetailsDto>();
 
+            CreateMap<Job, CandidateJobDetailsDto>();
         }
     }
 }

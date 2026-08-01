@@ -23,7 +23,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             _jobService = jobService;
         }
 
-        [Authorize(Roles = "HR,Admin")]
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateJobAsync([FromBody] CreateJobDto jobDto, CancellationToken cancellationToken)
         {
@@ -35,7 +35,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return StatusCode(StatusCodes.Status201Created, job);
         }
 
-        [Authorize]
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetJobByIdAsync(Guid Id, CancellationToken cancellationToken)
         {
@@ -43,7 +43,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(jobResponse);
         }
 
-        [Authorize]
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
         [HttpGet]
         public async Task<IActionResult> GetAllJobsAsync([FromQuery]PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
@@ -51,9 +51,9 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(jobLists);
         }
 
-        [Authorize(Roles = "HR,Admin")]
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateJobAsync(Guid Id,UpdateJobRequestDto updateJobRequestDto , CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateJobAsync(Guid Id, [FromBody] UpdateJobRequestDto updateJobRequestDto , CancellationToken cancellationToken)
         {
             var userId = User.GetUserId();
             JobResponseDto jobResponse = await _jobService.UpdateJobAsync(Id, userId, updateJobRequestDto, cancellationToken);
@@ -61,7 +61,17 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(jobResponse);
         }
 
-        [Authorize(Roles = "HR,Admin")]
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
+        [HttpPatch("{Id}/status")]
+        public async Task<IActionResult> UpdateJobStatusAsync(Guid Id, [FromBody] UpdateJobStatusRequestDto updateJobStatusRequestDto, CancellationToken cancellationToken)
+        {
+            var userId = User.GetUserId();
+            JobResponseDto jobResponse = await _jobService.UpdateJobStatusAsync(Id, userId, updateJobStatusRequestDto, cancellationToken);
+
+            return Ok(jobResponse);
+        }
+
+        [Authorize(Roles = "HR,Admin,Recruiter,Manager")]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteJobAsync(Guid Id, CancellationToken cancellationToken)
         {

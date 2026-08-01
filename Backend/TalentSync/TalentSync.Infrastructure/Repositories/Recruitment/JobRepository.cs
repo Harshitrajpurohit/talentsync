@@ -37,7 +37,12 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
 
         public async Task<Job?> GetJobByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await _context.Jobs.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
+            return await _context.Jobs
+            .Include(j => j.HR)
+            .Include(j => j.Applications)
+            .FirstOrDefaultAsync(
+                j => j.Id == id && !j.IsDeleted,
+                cancellationToken);
         }
 
         public async Task<Job?> GetCandidateJobByIdAsync( Guid id, CancellationToken cancellationToken)
@@ -77,13 +82,25 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
         }
 
 
-        public async Task<List<Job>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest , CancellationToken cancellationToken)
+        public async Task<List<JobListDto>> GetPagedAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            return await _context.Jobs.AsNoTracking()
-                .Where(j => !j.IsDeleted && j.Status == JobStatus.Open)
-                .OrderByDescending(j => j.CreatedAt)
-                .Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1))
+            return await _context.Jobs
+                .AsNoTracking()
+                .Where(j => !j.IsDeleted)
+                .OrderByDescending(j => j.PostedDate)
+                .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
                 .Take(paginationRequest.PageSize)
+                .Select(j => new JobListDto
+                {
+                    Id = j.Id,
+                    Title = j.Title,
+                    Department = j.Department,
+                    Status = j.Status,
+                    PostedDate = j.PostedDate,
+                    HRId = j.HRId,
+                    HrName = j.HR.Name,
+                    ApplicationsCount = j.Applications.Count()
+                })
                 .ToListAsync(cancellationToken);
         }
 

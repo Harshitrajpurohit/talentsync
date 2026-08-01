@@ -15,7 +15,7 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<Job?> GetJobByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<Job?> GetCandidateJobByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<List<CandidateJobListDto>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest, Guid candidateId, CancellationToken cancellationToken);
-        Task<List<Job>> GetPagedOpenJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<List<JobListDto>> GetPagedAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
         void UpdateJob(Job job);
         void DeleteJob(Job job);
         Task<List<Job>> GetJobsByHRIdAsync(Guid hrId, CancellationToken cancellationToken);

@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 import { useApplications } from "../hooks/applications/useApplications";
 
 import ApplicationFilters from "../components/applications/ApplicationFilters";
-import ApplicationSearch from "../components/applications/ApplicationSearch";
+
 import ApplicationsTable from "../components/applications/ApplicationsTable";
 import ApplicationCard from "../components/applications/ApplicationCard";
 import ApplicationSkeleton from "../components/applications/ApplicationSkeleton";
 import EmptyApplications from "../components/applications/EmptyApplications";
 
 import type { ApplicationStatus } from "../../../shared/types/recruitment";
+import SearchBar from "../../../shared/components/SearchBar";
 
 export default function CandidateApplicationsPage() {
   const { applications, loading } = useApplications();
@@ -53,7 +54,7 @@ export default function CandidateApplicationsPage() {
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <ApplicationSearch
+        <SearchBar
           value={search}
           onChange={setSearch}
         />

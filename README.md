@@ -1,60 +1,134 @@
 # TalentSync
 
-TalentSync is a production-oriented Human Resource Management System (HRMS) and Recruitment Platform built with **ASP.NET Core Web API**, following **Clean Architecture** and modern software engineering practices.
+TalentSync is a production-oriented **Recruitment Management Platform** built with **ASP.NET Core Web API** following **Clean Architecture** principles.
 
-The project focuses on building a scalable, maintainable, and enterprise-ready recruitment management system with authentication, workflow management, real-time notifications, and containerized deployment.
+The project is designed to demonstrate enterprise-level backend development practices, scalable architecture, secure authentication, real-time communication, and a modern React frontend.
 
-> **Project Status:**  Active Development
+> **Project Status:** 🚧 Active Development
 
 ---
 
 # Features
 
 ## Authentication & Authorization
+
 - JWT Authentication
 - Refresh Token Authentication
 - Role-Based Authorization
+- Secure Password Hashing
+- Protected API Endpoints
+
+---
 
 ## User Management
+
+- User Registration & Login
 - User Management
 - Role Management
 - User Role Assignment
+- Profile Management
+
+---
 
 ## Recruitment Management
-- Job Management
-- Resume Management
-- Job Applications
-- Screening
-- Interview Scheduling
-- Candidate Selection
-- Workflow & Status Validation
 
-## Employee Management
+- Job Management
+- Candidate Job Portal
+- Resume Upload & Replacement
+- Job Applications
+- Candidate Dashboard
+- Recruiter Dashboard
+- HR Dashboard
+- Interview Scheduling
+- Recruitment Workflow
+- Job Status Management
+- Candidate Tracking
+
+---
+
+## Human Resource Management
+
+- Employee Management
 - Employee Records
+- Employee Directory
 - Employee Onboarding
 
+---
+
+## Dashboard
+
+Role-based dashboards for:
+
+- HR
+- Recruiter
+- Candidate
+- Admin
+- Manager
+- Employee
+
+---
+
 ## Notification System
+
 - In-App Notifications
 - SignalR Real-Time Notifications
+- Read / Unread Notifications
+- Notification Counter
+
+---
 
 ## File Management
+
 - Resume Upload
+- Resume Download
+- Resume Replacement
 - Cloudinary Integration
 
+---
+
 ## Infrastructure
-- Pagination
-- Global Exception Handling
+
+- Clean Architecture
+- Repository Pattern
+- Unit of Work Pattern
 - Dependency Injection
 - AutoMapper
 - Entity Framework Core
 - SQL Server
+- Global Exception Handling
+- Pagination
+- Validation
+- Logging
+- CancellationToken Support
+
+---
+
+## Frontend
+
+Built with:
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+- Custom Hooks
+- Feature-Based Architecture
+
+---
 
 ## Testing
+
 - xUnit
 - Moq
-- Unit Tests (180+ Passing Tests)
+- 180+ Unit Tests
+- Service Layer Testing
+
+---
 
 ## DevOps
+
 - Docker
 - Docker Compose
 
@@ -62,7 +136,7 @@ The project focuses on building a scalable, maintainable, and enterprise-ready r
 
 # Architecture
 
-The project follows **Clean Architecture** to achieve separation of concerns and maintainability.
+TalentSync follows **Clean Architecture**.
 
 ```
 Presentation (API)
@@ -74,8 +148,11 @@ Domain
 Infrastructure
 ```
 
-### Design Patterns
+---
 
+# Design Patterns
+
+- Clean Architecture
 - Repository Pattern
 - Unit of Work Pattern
 - Service Layer Pattern
@@ -83,6 +160,7 @@ Infrastructure
 - Dependency Injection
 - DTO Pattern
 - AutoMapper
+- Options Pattern
 
 ---
 
@@ -95,19 +173,38 @@ Infrastructure
 - Entity Framework Core
 - SQL Server
 - JWT Authentication
+- Refresh Tokens
 - SignalR
 - AutoMapper
 - Cloudinary
 
-## Frontend (In Progress)
+---
+
+## Frontend
 
 - React
+- TypeScript
+- Vite
 - Tailwind CSS
+- Axios
+- React Router
+
+---
+
+## Database
+
+- SQL Server
+- Entity Framework Core
+
+---
 
 ## Testing
 
 - xUnit
 - Moq
+- FluentAssertions
+
+---
 
 ## DevOps
 
@@ -125,14 +222,15 @@ TalentSync
 ├── TalentSync.Application
 ├── TalentSync.Domain
 ├── TalentSync.Infrastructure
-└── TalentSync.Tests
+├── TalentSync.Tests
+└── frontend (React)
 ```
 
 ---
 
 # Configuration
 
-For local development, the project uses **ASP.NET Core User Secrets** to store sensitive configuration values.
+Sensitive configuration is stored using **ASP.NET Core User Secrets**.
 
 Example:
 
@@ -141,20 +239,22 @@ Example:
   "ConnectionStrings": {
     "DefaultConnection": "<your-connection-string>"
   },
+
   "JwtConfig": {
-    "Key": "<your-jwt-key>"
+    "Key": "<jwt-secret>"
   },
+
   "AdminUser": {
-    "Password": "<your-admin-password>"
+    "Password": "<admin-password>"
   },
+
   "Cloudinary": {
-    "CloudName": "<your-cloud-name>",
-    "ApiKey": "<your-api-key>",
-    "ApiSecret": "<your-api-secret>"
+    "CloudName": "<cloud-name>",
+    "ApiKey": "<api-key>",
+    "ApiSecret": "<api-secret>"
   }
 }
 ```
-
 
 ---
 
@@ -162,16 +262,19 @@ Example:
 
 ## Prerequisites
 
+### Option 1 (Recommended)
+
 - Docker Desktop
 
-OR
+### Option 2
 
 - .NET 10 SDK
 - SQL Server
+- Node.js (Frontend)
 
 ---
 
-# Run with Docker
+# Running with Docker
 
 Clone the repository
 
@@ -179,38 +282,38 @@ Clone the repository
 git clone https://github.com/Harshitrajpurohit/talentsync.git
 ```
 
-Move into the project
+Navigate into the project
 
 ```bash
 cd talentsync
 ```
 
-Run the application
+Run
 
 ```bash
 docker compose up --build
 ```
 
-The API will be available at
+API
 
 ```
 http://localhost:5000
 ```
 
-<!-- Swagger
+Swagger
 
 ```
 http://localhost:5000/swagger
-``` -->
+```
 
 ---
 
 # Running Without Docker
 
-Update the connection string inside:
+Restore packages
 
-```
-TalentSync.Api/appsettings.json
+```bash
+dotnet restore
 ```
 
 Apply migrations
@@ -219,10 +322,32 @@ Apply migrations
 dotnet ef database update
 ```
 
-Run the project
+Run API
 
 ```bash
-dotnet run
+dotnet run --project TalentSync.Api
+```
+
+---
+
+## Frontend
+
+Navigate to the frontend project
+
+```bash
+cd frontend
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start development server
+
+```bash
+npm run dev
 ```
 
 ---
@@ -237,15 +362,32 @@ dotnet test
 
 Current Status
 
--  180+ Unit Tests
--  All Tests Passing
+- ✅ 180+ Unit Tests
+- ✅ All Tests Passing
 
 ---
 
+# Current Modules
+
+- Authentication
+- User Management
+- Role Management
+- Profile Management
+- Job Management
+- Candidate Portal
+- Resume Management
+- Employee Management
+- Notifications
+- Candidate Dashboard
+- Recruiter Dashboard
+- HR Dashboard
+
+---
 
 # Upcoming Features
 
-- React Frontend
+- Interview Management
+- Reports & Analytics
 - Email Notifications
 - Health Checks
 - Background Jobs (Hangfire)
@@ -253,11 +395,13 @@ Current Status
 - Rate Limiting
 - GitHub Actions CI/CD
 - Azure Deployment
-- Logging & Monitoring
+- Serilog Logging
+- Monitoring
 - Integration Testing
 - Leave Management
 - Attendance Management
 - Payroll Module
+- Multi-Tenant Support
 
 ---
 
@@ -269,4 +413,4 @@ Contributions, issues, and feature requests are welcome.
 
 # License
 
-This project is developed for learning and portfolio purposes.
+This project is developed for learning, portfolio, and educational purposes.

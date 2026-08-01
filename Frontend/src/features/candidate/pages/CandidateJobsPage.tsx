@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useJobs } from "../hooks/jobs/useJobs";
 
-import JobSearch from "../components/jobs/JobSearch";
+
 import JobFilters from "../components/jobs/JobFilters";
 import JobsTable from "../components/jobs/JobsTable";
 import JobCard from "../components/jobs/JobCard";
@@ -12,6 +12,8 @@ import EmptyJobs from "../components/jobs/EmptyJobs";
 import JobPagination from "../components/jobs/JobPagination";
 
 import type { JobStatus } from "../../../shared/types/recruitment";
+import SearchBar from "../../../shared/components/SearchBar";
+import Pagination from "../../../shared/components/Pagination";
 
 export default function CandidateJobsPage() {
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ export default function CandidateJobsPage() {
 
       {/* Search & Filter */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <JobSearch value={search} onChange={setSearch} />
+        <SearchBar value={search} onChange={setSearch} />
 
         <JobFilters value={status} onChange={setStatus} />
       </div>
@@ -92,12 +94,12 @@ export default function CandidateJobsPage() {
             ))}
           </div>
 
-          {/* Pagination */}
+
           {pagination && (
-            <JobPagination
-              pageNumber={pagination.pageNumber}
-              pageSize={pagination.pageSize}
-              totalRecords={pagination.totalRecords}
+            <Pagination
+              pageNumber={pagination?.pageNumber ?? 1}
+              pageSize={pagination?.pageSize ?? 10}
+              totalRecords={pagination?.totalRecords ?? 0}
               onPageChange={setPageNumber}
             />
           )}

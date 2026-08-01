@@ -71,17 +71,15 @@ namespace TalentSync.Application.Services.Recruitment
 
         public async Task<PaginationResponse<JobListDto>> GetAllJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            List<Job> jobs = await _jobRepository.GetPagedOpenJobsAsync(paginationRequest, cancellationToken);
+            List<JobListDto> jobs = await _jobRepository.GetPagedAllJobsAsync(paginationRequest, cancellationToken);
             int totalCount = await _jobRepository.CountAsync(cancellationToken);
-
-            List<JobListDto> result = _mapper.Map<List<JobListDto>>(jobs);
 
             return new PaginationResponse<JobListDto>
             (
                 pageNumber : paginationRequest.PageNumber,
                 pageSize : paginationRequest.PageSize,
                 totalRecords : totalCount,
-                data : result
+                data : jobs
             );
 
         }
@@ -108,6 +106,35 @@ namespace TalentSync.Application.Services.Recruitment
             _mapper.Map(updateJobRequestDto, job);
             job.UpdatedAt = DateTime.UtcNow;
             
+            _jobRepository.UpdateJob(job);
+            await _jobRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Job with ID: {JobId} updated successfully.", id);
+            return _mapper.Map<JobResponseDto>(job);
+
+        }
+
+        public async Task<JobResponseDto> UpdateJobStatusAsync(Guid id, Guid userId, UpdateJobStatusRequestDto updateJobStatusRequestDto, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Updating job Status with Job ID: {JobId} for user with ID: {UserId}", id, userId);
+
+            Job job = await _jobRepository.GetJobByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Job Not Found.");
+
+            if(job.Status == updateJobStatusRequestDto.Status)
+            {
+                _logger.LogInformation("Job with ID: {JobId} already has the status: {Status}. No update needed.", id, updateJobStatusRequestDto.Status);
+                return _mapper.Map<JobResponseDto>(job);
+            }
+
+            if (job.HRId != userId)
+            {
+                _logger.LogWarning("Unauthorized update attempt for job with ID: {JobId} by user with ID: {UserId}", id, userId);
+                throw new UnauthorizedAccessException(
+                    "You can only update your own jobs.");
+            }
+
+            job.Status = updateJobStatusRequestDto.Status;
+            job.UpdatedAt = DateTime.UtcNow;
+
             _jobRepository.UpdateJob(job);
             await _jobRepository.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Job with ID: {JobId} updated successfully.", id);

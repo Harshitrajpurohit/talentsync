@@ -5,34 +5,31 @@ interface CandidateTableProps {
   candidates: User[];
 }
 
-export default function CandidateTable({
-  candidates,
-}: CandidateTableProps) {
+export default function CandidateTable({ candidates }: CandidateTableProps) {
   return (
-    <div className="overflow-hidden rounded-[20px] border border-gray-200 bg-white shadow-sm dark:border-[#315343] dark:bg-[#253f33]">
+    <div className="overflow-hidden rounded-2xl border border-[#E5EAE7] bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full whitespace-nowrap">
-          {/* Matches the clean, white header from the image */}
-          <thead className="bg-white dark:bg-[#253f33]">
+        <table className="min-w-full border-collapse text-left text-sm">
+          <thead className="border-b border-[#E5EAE7] bg-[#F8FAF9]">
             <tr>
-              <th className="px-6 py-5 text-left text-[14px] font-bold text-gray-900 dark:text-white">
+              <th className="px-6 py-4 font-semibold text-[#75837D]">
                 Candidate
               </th>
-              <th className="px-6 py-5 text-left text-[14px] font-bold text-gray-900 dark:text-white">
+              <th className="px-6 py-4 font-semibold text-[#75837D]">
                 Phone
               </th>
-              <th className="px-6 py-5 text-left text-[14px] font-bold text-gray-900 dark:text-white">
+              <th className="px-6 py-4 font-semibold text-[#75837D]">
                 Status
               </th>
-              <th className="px-6 py-5 text-left text-[14px] font-bold text-gray-900 dark:text-white">
+              <th className="px-6 py-4 font-semibold text-[#75837D]">
                 Joined
               </th>
-              <th className="px-6 py-5 text-center text-[14px] font-bold text-gray-900 dark:text-white">
+              <th className="px-6 py-4 text-center font-semibold text-[#75837D]">
                 Action
               </th>
             </tr>
           </thead>
-          <tbody className="dark:divide-[#315343]">
+          <tbody className="divide-y divide-[#E5EAE7]">
             {candidates.map((candidate) => (
               <CandidateTableRow
                 key={candidate.id}

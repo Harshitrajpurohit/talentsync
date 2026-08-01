@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.HumanResources;
 using TalentSync.Infrastructure.Persistence;
@@ -31,6 +32,23 @@ namespace TalentSync.Infrastructure.Repositories.Employees
         public async Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Employees.FirstOrDefaultAsync(x => x.UserId == userId && !x.IsDeleted, cancellationToken);
+        }
+
+        public async Task<int> CountAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Employees
+                .CountAsync(cancellationToken);
+        }
+
+        public async Task<List<Employee>> GetPagedAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            return await _context.Employees
+                .AsNoTracking()
+                .Include(e => e.User)
+                .OrderBy(e => e.EmployeeCode)
+                .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
+                .Take(paginationRequest.PageSize)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)

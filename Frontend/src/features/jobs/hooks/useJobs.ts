@@ -1,42 +1,47 @@
 import { useCallback, useEffect, useState } from "react";
-import { jobsApi } from "../api/jobsApi";
 
-import type { JobListItem } from "../types/job";
+import { getJobs } from "../api/jobApi";
+
 import type { PaginationResponse } from "../../../shared/types/pagination";
+import type { JobListItem } from "../types/job";
 
-export function useJobs(pageNumber: number, pageSize = 10) {
+export function useJobs(
+  pageNumber: number,
+  pageSize: number,
+) {
+  const [jobs, setJobs] =
+    useState<PaginationResponse<JobListItem>>();
 
-  const [jobs, setJobs] = useState<JobListItem[]>([]);
-  
-  const [pagination, setPagination] =
-    useState<PaginationResponse<JobListItem> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>();
 
-  const fetchJobs = useCallback(async () => {
+  const loadJobs = useCallback(async () => {
     try {
       setLoading(true);
+      setError(undefined);
 
-      const { data } = await jobsApi.getAll({
+      const response = await getJobs({
         pageNumber,
         pageSize,
       });
 
-      setJobs(data.data);
-      setPagination(data);
+      setJobs(response);
+    } catch {
+      setError("Failed to load jobs.");
     } finally {
       setLoading(false);
     }
   }, [pageNumber, pageSize]);
 
   useEffect(() => {
-    void fetchJobs();
-  }, [fetchJobs]);
+    loadJobs();
+  }, [loadJobs]);
 
   return {
     jobs,
-    pagination,
     loading,
-    refresh: fetchJobs,
+    error,
+    refetch: loadJobs,
   };
 }

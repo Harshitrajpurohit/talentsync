@@ -1,34 +1,38 @@
 import { useCallback, useEffect, useState } from "react";
+import { getJobById } from "../api/jobApi";
 
-import { jobsApi } from "../api/jobsApi";
-
-import type { Job } from "../types/job";
+import type { JobDetails } from "../types/job";
 
 export function useJob(id: string) {
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [job, setJob] = useState<JobDetails>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
 
   const fetchJob = useCallback(async () => {
-    if (!id) return;
-
-    setLoading(true);
-
     try {
-      const response = await jobsApi.getById(id);
+      setLoading(true);
+      setError(undefined);
 
-      setJob(response.data);
+      const data = await getJobById(id);
+
+      setJob(data);
+    } catch {
+      setError("Failed to load job.");
     } finally {
       setLoading(false);
     }
   }, [id]);
 
   useEffect(() => {
-    void fetchJob();
-  }, [fetchJob]);
+    if (id) {
+      fetchJob();
+    }
+  }, [fetchJob, id]);
 
   return {
     job,
     loading,
-    refresh: fetchJob,
+    error,
+    refetch: fetchJob,
   };
 }

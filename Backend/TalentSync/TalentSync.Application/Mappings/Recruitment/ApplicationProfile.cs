@@ -16,6 +16,13 @@ namespace TalentSync.Application.Mappings.Recruitment
                 .ForMember(dest => dest.CandidateName, opt => opt.MapFrom(src => src.Candidate != null ? src.Candidate.Name : null))
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null ? src.Job.Title : null));
             CreateMap<UpdateApplicationRequestDto, ApplicationEntity>();
+            CreateMap<ApplicationEntity, ApplicationProfileResponseDto>()
+                .ForMember(dest => dest.CandidateName, opt => opt.MapFrom(src => src.Candidate != null ? src.Candidate.Name : null))
+                .ForMember(dest => dest.CandidateEmail, opt => opt.MapFrom(src => src.Candidate != null ? src.Candidate.Email : null))
+                .ForMember(dest => dest.ResumeUrl, opt => opt.Ignore())
+                .ForMember(dest => dest.CandidatePhone, opt => opt.MapFrom(src => src.Candidate != null ? src.Candidate.Phone : null))
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null ? src.Job.Title : null))
+                .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Job != null ? src.Job.Department : null));
         }
     }
 }

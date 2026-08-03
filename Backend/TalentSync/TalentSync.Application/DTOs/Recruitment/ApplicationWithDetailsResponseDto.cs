@@ -12,6 +12,7 @@ namespace TalentSync.Application.DTOs.Recruitment
         public string? JobTitle { get; set; }
         public Guid CandidateId { get; set; }
         public string? CandidateName { get; set; }
+
         public DateTime SubmittedDate { get; set; }
         public ApplicationStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }

@@ -91,6 +91,14 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<JobResponseDto>(job);
         }
 
+        public async Task<JobSummaryResponseDto> GetJobSummaryAsync(Guid id, CancellationToken cancellationToken)
+        {
+            Job job = await _jobRepository.GetJobByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Job Not Found.");
+
+            JobSummaryResponseDto jobSummaryResponse = await _jobRepository.GetJobSummaryAsync(id, cancellationToken);
+            return jobSummaryResponse;
+        }
+
         public async Task<JobResponseDto> UpdateJobAsync(Guid id, Guid userId,UpdateJobRequestDto updateJobRequestDto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Updating job with ID: {JobId} for user with ID: {UserId}", id, userId);
@@ -205,6 +213,6 @@ namespace TalentSync.Application.Services.Recruitment
             }
         }
 
-
+       
     }
 }

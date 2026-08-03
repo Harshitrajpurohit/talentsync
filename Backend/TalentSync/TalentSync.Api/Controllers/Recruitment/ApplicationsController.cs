@@ -35,7 +35,7 @@ namespace TalentSync.Api.Controllers.Recruitment
 
         [Authorize(Roles = "Admin,HR,Recruiter")]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllAsync([FromQuery] ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             PaginationResponse<ApplicationWithDetailsResponseDto> applications = await _applicationService.GetAllAsync(paginationRequest, cancellationToken);
             return Ok(applications);
@@ -46,15 +46,15 @@ namespace TalentSync.Api.Controllers.Recruitment
         public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
         {
             Console.WriteLine("hello");
-            var application = await _applicationService.GetByIdAsync(id, cancellationToken);
+            ApplicationProfileResponseDto application = await _applicationService.GetByIdAsync(id, cancellationToken);
             return Ok(application);
         }
 
         [Authorize(Roles = "Admin,HR,Recruiter")]
         [HttpGet("job/{jobId}")]
-        public async Task<IActionResult> GetByJob(Guid jobId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByJob(Guid jobId, [FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            var applications = await _applicationService.GetByJobIdAsync(jobId, cancellationToken);
+            var applications = await _applicationService.GetByJobIdAsync(jobId, paginationRequest, cancellationToken);
             return Ok(applications);
         }
 
@@ -79,7 +79,7 @@ namespace TalentSync.Api.Controllers.Recruitment
         }
 
         [Authorize(Roles = "Admin,HR,Recruiter")]
-        [HttpPut("{id}")]
+        [HttpPatch("{id}/status")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateApplicationRequestDto dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

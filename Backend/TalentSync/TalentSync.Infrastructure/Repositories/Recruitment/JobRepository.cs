@@ -104,6 +104,26 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<JobSummaryResponseDto> GetJobSummaryAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Applications
+                                    .AsNoTracking()
+                                    .Where(a => a.JobId == id && !a.IsDeleted)
+                                    .GroupBy(_ => 1)
+                                    .Select(g => new JobSummaryResponseDto
+                                    {
+                                        TotalApplications = g.Count(),
+                                        Submitted = g.Count(a => a.Status == ApplicationStatus.Submitted),
+                                        Screening = g.Count(a => a.Status == ApplicationStatus.Screening),
+                                        Interview = g.Count(a => a.Status == ApplicationStatus.InterviewScheduled || a.Status == ApplicationStatus.InterviewCompleted),
+                                        Selected = g.Count(a => a.Status == ApplicationStatus.Selected),
+                                        Rejected = g.Count(a => a.Status == ApplicationStatus.Rejected)
+                                    })
+                                    .FirstOrDefaultAsync(cancellationToken)
+                                    ?? new JobSummaryResponseDto();
+
+        }
+
         //public async Task<List<Job>> GetFilteredJobsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
         //{
 
@@ -144,5 +164,7 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .Take(count)
                 .ToListAsync(cancellationToken);
         }
+
+
     }
 }

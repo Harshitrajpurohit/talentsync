@@ -1,5 +1,5 @@
 import type { InterviewDetailed } from "../../../interviews/types/interview";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 type Props = {
   interviews: InterviewDetailed[];
@@ -12,12 +12,12 @@ export default function UpcomingInterviews({ interviews }: Props) {
         <h2 className="text-lg font-bold text-[#212529] dark:text-white">
           Upcoming Interviews
         </h2>
-        <Link
+        {/* <Link
           to="/hr/interviews"
           className="text-sm font-semibold text-[#75837D] transition-colors hover:text-[#315343] dark:hover:text-[#C3F53C]"
         >
           View All
-        </Link>
+        </Link> */}
       </div>
 
       <div className="overflow-x-auto">

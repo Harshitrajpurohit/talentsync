@@ -12,7 +12,12 @@ export const applicationApi = {
       .post<Application>("/applications", request)
       .then((r) => r.data),
 
-  getApplications: () =>
-    api.get<ApplicationWithDetails[]>("/applications/candidate")
-      .then((response) => response.data),
+  getApplications: (
+  ) =>
+    api
+      .get<ApplicationWithDetails[]>(
+        "/applications/candidate"
+      )
+      .then((r) => r.data),
+
 };

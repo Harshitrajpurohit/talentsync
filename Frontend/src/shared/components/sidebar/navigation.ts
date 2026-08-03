@@ -84,11 +84,6 @@ export const navigation: Record<UserRole, SidebarItem[]> = {
       icon: ClipboardList,
     },
     {
-      title: "Interviews",
-      path: "/recruiter/interviews",
-      icon: CalendarDays,
-    },
-    {
       title: "Profile",
       path: "/recruiter/profile",
       icon: User,

@@ -23,3 +23,21 @@ export interface ApplicationWithDetails {
 export interface CreateApplicationRequest {
   jobId: string;
 }
+
+export interface ApplicationProfile {
+  id: string;
+
+  candidateId: string;
+  candidateName: string;
+  candidateEmail: string;
+  candidatePhone?: string;
+  resumeUrl?: string;
+
+  jobId: string;
+  jobTitle: string;
+  department: string;
+
+  submittedDate: string;
+  status: ApplicationStatus;
+  createdAt: string;
+}

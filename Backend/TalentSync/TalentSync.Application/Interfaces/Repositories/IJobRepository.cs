@@ -21,6 +21,6 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<List<Job>> GetJobsByHRIdAsync(Guid hrId, CancellationToken cancellationToken);
         Task SaveChangesAsync(CancellationToken cancellationToken);
         Task<List<Job>> GetRecentJobsAsync(int count, CancellationToken cancellationToken);
-
+        Task<JobSummaryResponseDto> GetJobSummaryAsync(Guid id, CancellationToken cancellationToken);
     }
 }

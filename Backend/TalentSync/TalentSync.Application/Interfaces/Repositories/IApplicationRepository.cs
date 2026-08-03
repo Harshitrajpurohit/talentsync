@@ -9,14 +9,15 @@ namespace TalentSync.Application.Interfaces.Repositories
     public interface IApplicationRepository
     {
         Task<int> CountAsync(CancellationToken cancellationToken);
+        Task<int> CountAsync(ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<int> CountByJobIdAsync(Guid jobId, CancellationToken cancellationToken);
         Task<ApplicationEntity> AddAsync(ApplicationEntity application, CancellationToken cancellationToken);
         Task<ApplicationEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
         Task<List<ApplicationEntity>> GetAllAsync(CancellationToken cancellationToken);
         Task<ApplicationEntity?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken);
-        Task<List<ApplicationEntity>> GetPagedApplicationsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
-        Task<List<ApplicationEntity>> GetByJobIdAsync(Guid jobId, CancellationToken cancellationToken);
+        Task<List<ApplicationEntity>> GetPagedApplicationsAsync(ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<List<ApplicationEntity>> GetByJobIdAsync(Guid jobId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<List<ApplicationEntity>> GetByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken);
         Task<List<ApplicationEntity>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(Guid jobId, Guid candidateId, CancellationToken cancellationToken);

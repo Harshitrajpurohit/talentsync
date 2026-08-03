@@ -1,7 +1,20 @@
+import type { PaginationResponse } from "../../../shared/types/pagination";
+import type { JobStatus } from "../../../shared/types/jobs";
 
-export type JobStatus = 'Open' | 'Closed';
 
-export interface Job {
+
+export interface JobListItem {
+  id: string;
+  title: string;
+  department: string;
+  status: JobStatus;
+  postedDate: string;
+  hrId: string;
+  hrName: string;
+  applicationsCount: number;
+}
+
+export interface JobDetails {
   id: string;
   title: string;
   department: string;
@@ -10,6 +23,7 @@ export interface Job {
   postedDate: string;
   status: JobStatus;
   hrId: string;
+  hrName: string;
 }
 
 export interface CreateJobRequest {
@@ -27,12 +41,17 @@ export interface UpdateJobRequest {
   status?: JobStatus;
 }
 
-export interface JobListItem {
-  id: string;
-  title: string;
-  department: string;
-  postedDate: string;
+export interface UpdateJobStatusRequest {
   status: JobStatus;
 }
 
-export type JobResponse = Job;
+export type JobListResponse = PaginationResponse<JobListItem>;
+
+export interface JobSummary {
+  totalApplications: number;
+  submitted: number;
+  screening: number;
+  interview: number;
+  selected: number;
+  rejected: number;
+}

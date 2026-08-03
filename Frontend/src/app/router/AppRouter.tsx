@@ -11,8 +11,10 @@ import CandidateJobsPage from "../../features/candidate/pages/CandidateJobsPage"
 import CandidateJobDetailsPage from "../../features/candidate/pages/CandidateJobDetailsPage";
 import NotificationsPage from "../../features/notifications/pages/NotificationsPage";
 import HrDashboardPage from "../../features/hr/pages/HrDashboardPage";
-import { CandidateDetailsPage, CandidatesPage, EmployeesPage } from "../../features/hr";
-import JobsPage from "../../features/hr/pages/JobsPage";
+import { EmployeesPage } from "../../features/hr";
+import { ApplicationDetailsPage, ApplicationsPage } from "../../features/application";
+import { CandidateDetailsPage, CandidatesPage } from "../../features/candidate-management";
+import { JobDetailsPage, JobsPage } from "../../features/jobs";
 
 
 
@@ -93,10 +95,12 @@ const AppRouter = () => (
 
           <Route path="/recruiter" element={<RecruiterDashboard />} />
 
-          <Route path="/recruiter/jobs" element={<>Jobs</>} />
-          <Route path="/recruiter/candidates" element={<>Candidates</>} />
-          <Route path="/recruiter/applications" element={<>Applications</>} />
-          <Route path="/recruiter/interviews" element={<>Interviews</>} />
+          <Route path="/recruiter/jobs" element={<JobsPage/>} />
+          <Route path="/recruiter/jobs/:id" element={<JobDetailsPage/>} />
+          <Route path="/recruiter/candidates" element={<CandidatesPage/>} />
+          <Route path="/recruiter/candidates/:id" element={<CandidateDetailsPage/>}/>
+          <Route path="/recruiter/applications" element={<ApplicationsPage/>} />
+          <Route path="/recruiter/applications/:id" element={<ApplicationDetailsPage/>} />
           <Route path="/recruiter/profile" element={<ProfilePage/>} />
           <Route path="/recruiter/settings" element={<>Settings</>} />
 
@@ -151,7 +155,9 @@ const AppRouter = () => (
           <Route path="/hr/candidates/:id" element={<CandidateDetailsPage/>}/>
 
           <Route path="/hr/jobs" element={<JobsPage/>} />
-          <Route path="/hr/applications" element={<>Applications</>} />
+          <Route path="/hr/jobs/:id" element={<JobDetailsPage/>} />
+          <Route path="/hr/applications" element={<ApplicationsPage/>} />
+          <Route path="/hr/applications/:id" element={<ApplicationDetailsPage/>} />
           {/* <Route path="/hr/reports" element={<>Reports</>} /> */}
           <Route path="/hr/profile" element={<ProfilePage/>} />
           <Route path="/hr/settings" element={<>Settings</>} />

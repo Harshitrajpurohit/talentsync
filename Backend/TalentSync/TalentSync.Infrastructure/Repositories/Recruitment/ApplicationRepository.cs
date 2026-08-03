@@ -20,7 +20,42 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
 
         public async Task<int> CountAsync(CancellationToken cancellationToken)
         {
-            return await _context.Applications.CountAsync(a => !a.IsDeleted, cancellationToken);
+            return await _context.Applications
+                .AsNoTracking()
+                .CountAsync(a => !a.IsDeleted, cancellationToken);
+        }
+
+        public async Task<int> CountAsync(ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            IQueryable<ApplicationEntity> query = _context.Applications
+                .AsNoTracking()
+                .Include(a => a.Job)
+                .Include(a => a.Candidate)
+                .Where(a => !a.IsDeleted);
+
+            if (!string.IsNullOrWhiteSpace(paginationRequest.Search))
+            {
+                string search = paginationRequest.Search.Trim().ToLower();
+
+                query = query.Where(a =>
+                    a.Candidate.Name.ToLower().Contains(search) ||
+                    a.Job.Title.ToLower().Contains(search) ||
+                    a.Candidate.Email.ToLower().Contains(search));
+            }
+
+            if (paginationRequest.Status.HasValue)
+            {
+                query = query.Where(a =>
+                    a.Status == paginationRequest.Status.Value);
+            }
+
+            if (paginationRequest.JobId.HasValue)
+            {
+                query = query.Where(a =>
+                    a.JobId == paginationRequest.JobId.Value);
+            }
+
+            return await query.CountAsync(cancellationToken);
         }
 
 
@@ -61,25 +96,50 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<ApplicationEntity>> GetPagedApplicationsAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<List<ApplicationEntity>> GetPagedApplicationsAsync(ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            return await _context.Applications.AsNoTracking()
+            IQueryable<ApplicationEntity> query = _context.Applications
+                .AsNoTracking()
                 .Include(a => a.Job)
                 .Include(a => a.Candidate)
-                .Where(a => !a.IsDeleted)
-                .OrderByDescending(a => a.CreatedAt)
-                .Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1))
+                .Where(a => !a.IsDeleted);
+
+            if (paginationRequest.JobId.HasValue)
+            {
+                query = query.Where(a => a.JobId == paginationRequest.JobId.Value);
+            }
+
+            if (paginationRequest.Status.HasValue)
+            {
+                query = query.Where(a => a.Status == paginationRequest.Status.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(paginationRequest.Search))
+            {
+                string search = paginationRequest.Search.Trim().ToLower();
+
+                query = query.Where(a =>
+                    a.Candidate.Name.ToLower().Contains(search) ||
+                    a.Job.Title.ToLower().Contains(search) ||
+                    a.Candidate.Email.ToLower().Contains(search));
+            }
+
+            return await query
+                .OrderByDescending(a => a.SubmittedDate)
+                .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
                 .Take(paginationRequest.PageSize)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<ApplicationEntity>> GetByJobIdAsync(Guid jobId, CancellationToken cancellationToken)
+        public async Task<List<ApplicationEntity>> GetByJobIdAsync(Guid jobId,PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             return await _context.Applications
+                .AsNoTracking()
                 .Include(a => a.Candidate)
                 .Where(a => a.JobId == jobId && !a.IsDeleted)
                 .OrderByDescending(a => a.SubmittedDate)
-                .AsNoTracking()
+                .Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1))
+                .Take(paginationRequest.PageSize)
                 .ToListAsync(cancellationToken);
         }
 

@@ -96,19 +96,25 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<ApplicationResponseDto>(newApplication);
         }
 
-        public async Task<ApplicationWithDetailsResponseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<ApplicationProfileResponseDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             ApplicationEntity? entity = await _applicationRepository.GetByIdWithDetailsAsync(id, cancellationToken);
             if (entity == null || entity.IsDeleted)
             {
                 throw new KeyNotFoundException("Application Not Available");
             }
-            return _mapper.Map<ApplicationWithDetailsResponseDto>(entity);
+            Resume? resume = await _resumeRepository.GetByCandidateId(entity.CandidateId, cancellationToken);
+
+
+            ApplicationProfileResponseDto applicationProfile = _mapper.Map<ApplicationProfileResponseDto>(entity);
+            applicationProfile.ResumeUrl = resume?.FileUrl;
+
+            return applicationProfile;
         }
 
-        public async Task<PaginationResponse<ApplicationWithDetailsResponseDto>> GetAllAsync(PaginationRequest paginationRequest ,CancellationToken cancellationToken)
+        public async Task<PaginationResponse<ApplicationWithDetailsResponseDto>> GetAllAsync(ApplicationPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            int count = await _applicationRepository.CountAsync(cancellationToken);
+            int count = await _applicationRepository.CountAsync(paginationRequest, cancellationToken);
             List<ApplicationEntity> list = await _applicationRepository.GetPagedApplicationsAsync(paginationRequest, cancellationToken);
 
             List<ApplicationWithDetailsResponseDto> applicationWithDetails = _mapper.Map<List<ApplicationWithDetailsResponseDto>>(list);
@@ -123,7 +129,7 @@ namespace TalentSync.Application.Services.Recruitment
         }
 
 
-        public async Task<List<ApplicationWithDetailsResponseDto>> GetByJobIdAsync(Guid jobId, CancellationToken cancellationToken)
+        public async Task<PaginationResponse<ApplicationWithDetailsResponseDto>> GetByJobIdAsync(Guid jobId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             Job? job = await _jobRepository.GetJobByIdAsync(jobId, cancellationToken);
             if (job == null || job.IsDeleted)
@@ -131,9 +137,15 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new KeyNotFoundException("Job Not Found");
             }
 
-            List<ApplicationEntity> list = await _applicationRepository.GetByJobIdAsync(jobId, cancellationToken);
+            int count = await _applicationRepository.CountByJobIdAsync(jobId, cancellationToken);
+            List<ApplicationEntity> list = await _applicationRepository.GetByJobIdAsync(jobId, paginationRequest, cancellationToken);
             List<ApplicationWithDetailsResponseDto> applications = _mapper.Map<List<ApplicationWithDetailsResponseDto>>(list);
-            return applications;
+            return new PaginationResponse<ApplicationWithDetailsResponseDto>(
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                count,
+                applications
+            );
         }
 
         public async Task<List<ApplicationWithDetailsResponseDto>> GetByCandidateIdAsync(Guid candidateId, CancellationToken cancellationToken)

@@ -47,3 +47,14 @@ export interface RescheduleInterviewRequest {
   scheduledAt: string;
   location: string;
 }
+
+export interface InterviewResponse {
+  id: string;
+  applicationId: string;
+  interviewerId: string;
+  interviewerName: string;
+  scheduledAt: string;
+  location?: string;
+  status: string;
+  createdAt: string;
+}

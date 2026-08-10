@@ -35,12 +35,12 @@ export default function JobApplicationRow({
       </td>
 
       <td className="px-6 py-4 text-right">
-        <Link
+      { role!== "manager" &&  (<Link
           to={`/${role}/applications/${application.id}`}
           className="inline-flex rounded-full bg-[#315343] px-6 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#C3F53C] hover:text-[#315343] active:scale-95 dark:bg-[#C3F53C] dark:text-[#315343] dark:hover:bg-[#b0df35]"
         >
           View
-        </Link>
+        </Link>)}
       </td>
     </tr>
   );

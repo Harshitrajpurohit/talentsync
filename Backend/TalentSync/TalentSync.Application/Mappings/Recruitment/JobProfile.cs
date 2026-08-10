@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using TalentSync.Application.DTOs.Dashboard;
 using TalentSync.Application.DTOs.Recruitment;
 using TalentSync.Domain.Entities.Recruitment;
 
@@ -31,6 +32,8 @@ namespace TalentSync.Application.Mappings.Recruitment
             CreateMap<Job, CandidateJobListDto>();
 
             CreateMap<Job, CandidateJobDetailsDto>();
+
+            CreateMap<Job, DashboardJobDto>();
         }
     }
 }

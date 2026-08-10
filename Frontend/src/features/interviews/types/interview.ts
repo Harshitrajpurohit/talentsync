@@ -1,4 +1,5 @@
-import type { InterviewStatus } from "../../../shared/types/interviewStatus";
+import type { InterviewStatus } from "../../../shared/types/recruitment";
+
 
 export interface ScheduleInterviewRequest {
   applicationId: string;
@@ -45,6 +46,7 @@ export interface UpdateInterviewStatusRequest {
 
 export interface RescheduleInterviewRequest {
   scheduledAt: string;
+  interviewerId: string;
   location: string;
 }
 

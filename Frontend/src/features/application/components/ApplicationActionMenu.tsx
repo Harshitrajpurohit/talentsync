@@ -3,6 +3,7 @@ import type { ApplicationStatus } from "../../../shared/types/recruitment";
 
 interface ApplicationActionMenuProps {
   status: ApplicationStatus;
+
   onView: () => void;
   onScreening: () => void;
   onInterview: () => void;
@@ -16,14 +17,16 @@ export default function ApplicationActionMenu({
   onInterview,
   onSelection,
 }: ApplicationActionMenuProps) {
-
   const role = getAuth()?.role;
 
-  const canScreen = role === "Recruiter" && status === "Submitted";
+  const canScreen =
+    role === "Recruiter" && status === "Submitted";
 
-  const canScheduleInterview = role === "HR" && status === "Screening";
+  const canScheduleInterview =
+    role === "HR" && status === "Screening";
 
-  const canMakeDecision = role === "HR" && status === "InterviewCompleted";
+  const canMakeDecision =
+    role === "HR" && status === "InterviewCompleted";
 
   return (
     <div className="flex justify-end gap-2">
@@ -34,7 +37,7 @@ export default function ApplicationActionMenu({
         View
       </button>
 
-      {canScreen  && (
+      {canScreen && (
         <button
           onClick={onScreening}
           className="rounded-full bg-[#315343] px-4 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#C3F53C] hover:text-[#315343] active:scale-95"

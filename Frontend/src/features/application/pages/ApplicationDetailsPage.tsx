@@ -13,24 +13,48 @@ import ApplicationDetailsError from "../components/details/ApplicationDetailsErr
 import ScreeningDialog from "../../hr/components/applications/dialogs/ScreeningDialog";
 import ScheduleInterviewDialog from "../../hr/components/applications/dialogs/ScheduleInterviewDialog";
 import SelectionDecisionDialog from "../../hr/components/applications/dialogs/SelectionDecisionDialog";
+import CancelInterviewDialog from "../../hr/components/applications/dialogs/CancelInterviewDialog";
+import RescheduleInterviewDialog from "../../hr/components/applications/dialogs/RescheduleInterviewDialog";
 
 import { useApplication } from "../hooks/useApplication";
+import { useInterviewByApplicationId } from "../../interviews/hooks/useInterviewByApplicationId";
+import InterviewInformation from "../components/details/InterviewInformation";
 
 export default function ApplicationDetailsPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
 
-  const { application, loading, error, refetch } = useApplication(id);
+  const {
+    application,
+    loading,
+    error,
+    refetch,
+  } = useApplication(id);
 
+  const {
+    interview,
+    refetch: refetchInterview,
+  } = useInterviewByApplicationId(application);
   const [screeningOpen, setScreeningOpen] = useState(false);
   const [interviewOpen, setInterviewOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
 
+  const [cancelInterviewOpen, setCancelInterviewOpen] =
+    useState(false);
+
+  const [rescheduleInterviewOpen, setRescheduleInterviewOpen] =
+    useState(false);
+
   function handleSuccess() {
     refetch();
+    refetchInterview();
+
     setScreeningOpen(false);
     setInterviewOpen(false);
     setSelectionOpen(false);
+
+    setCancelInterviewOpen(false);
+    setRescheduleInterviewOpen(false);
   }
 
   if (loading) {
@@ -51,10 +75,15 @@ export default function ApplicationDetailsPage() {
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
         <ApplicationActions
           application={application}
+          interview = {interview}
           onBack={() => navigate(-1)}
           onScreening={() => setScreeningOpen(true)}
           onInterview={() => setInterviewOpen(true)}
           onSelection={() => setSelectionOpen(true)}
+          onCancelInterview={() => setCancelInterviewOpen(true)}
+          onRescheduleInterview={() =>
+            setRescheduleInterviewOpen(true)
+          }
         />
 
         <ApplicationHeader application={application} />
@@ -65,7 +94,7 @@ export default function ApplicationDetailsPage() {
         </div>
 
         <ApplicationInformation application={application} />
-
+        <InterviewInformation interview={interview} />
         <WorkflowTimeline status={application.status} />
       </div>
 
@@ -79,7 +108,6 @@ export default function ApplicationDetailsPage() {
       <ScheduleInterviewDialog
         open={interviewOpen}
         applicationId={application.id}
-        interviewers={[]} // Note: Pass real interviewers here
         onClose={() => setInterviewOpen(false)}
         onSuccess={handleSuccess}
       />
@@ -90,6 +118,24 @@ export default function ApplicationDetailsPage() {
         onClose={() => setSelectionOpen(false)}
         onSuccess={handleSuccess}
       />
+
+      {interview && (
+        <>
+          <CancelInterviewDialog
+            open={cancelInterviewOpen}
+            interviewId={interview.id}
+            onClose={() => setCancelInterviewOpen(false)}
+            onSuccess={handleSuccess}
+          />
+
+          <RescheduleInterviewDialog
+            open={rescheduleInterviewOpen}
+            interviewId={interview.id}
+            onClose={() => setRescheduleInterviewOpen(false)}
+            onSuccess={handleSuccess}
+          />
+        </>
+      )}
     </>
   );
 }

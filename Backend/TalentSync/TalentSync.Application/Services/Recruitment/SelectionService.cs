@@ -85,9 +85,10 @@ namespace TalentSync.Application.Services.Recruitment
                     "A selection decision already exists for this application.");
             }
 
-            bool hasPassedInterview = (await _interviewRepository
-                .GetByApplicationIdAsync(application.Id, cancellationToken))
-                .Any(i => i.Status == InterviewStatus.Passed);
+            Interview? interview = await _interviewRepository
+                .GetByApplicationIdAsync(application.Id, cancellationToken);
+
+            bool hasPassedInterview = interview?.Status == InterviewStatus.Passed;
 
             if (!hasPassedInterview)
             {

@@ -11,6 +11,9 @@ namespace TalentSync.Application.DTOs.Recruitment
         public DateTime ScheduledAt { get; set; }
 
         [Required]
+        public Guid InterviewerId { get; set; }
+
+        [Required]
         [MaxLength(100)]
         public string Location { get; set; } = string.Empty;
     }

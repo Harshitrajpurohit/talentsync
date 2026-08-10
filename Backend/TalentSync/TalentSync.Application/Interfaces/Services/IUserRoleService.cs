@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.User;
+using TalentSync.Domain.Enums.User;
 
 namespace TalentSync.Application.Interfaces.Services
 {
@@ -14,5 +15,6 @@ namespace TalentSync.Application.Interfaces.Services
         Task<UserRoleResponseDto> UpdateUserRoleAsync(Guid urId, UserRoleRequestDTO updateDto, CancellationToken cancellationToken);
         Task<bool> DeleteUserRoleAsync(Guid urId, CancellationToken cancellationToken);
         Task<PaginationResponse<UserRoleResponseWithExtraDto>> GetAllUserRolesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<List<UserRoleResponseWithExtraDto>> GetAllUserRoleByRoleAsync(RoleName role, CancellationToken cancellationToken);
     }
 }

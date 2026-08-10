@@ -24,7 +24,7 @@ namespace TalentSync.Infrastructure.Persistence.Configurations
                    .IsRequired();
 
             builder.Property(i => i.ScheduledAt)
-                   .HasColumnType("datetime2")
+                   .HasColumnType("datetimeoffset")
                    .IsRequired();
 
             builder.Property(i => i.Location)

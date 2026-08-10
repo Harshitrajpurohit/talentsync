@@ -11,7 +11,7 @@ namespace TalentSync.Application.DTOs.Recruitment
         public Guid ApplicationId { get; set; }
 
         [Required]
-        public DateTime ScheduledAt { get; set; }
+        public DateTimeOffset ScheduledAt { get; set; }
 
         [Required]
         public Guid InterviewerId { get; set; }

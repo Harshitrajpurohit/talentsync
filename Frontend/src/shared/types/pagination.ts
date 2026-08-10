@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from "./recruitment";
+import type { ApplicationStatus, InterviewStatus } from "./recruitment";
 
 export interface PaginationRequest {
   pageNumber: number;
@@ -18,4 +18,13 @@ export interface ApplicationPaginationRequest {
   search?: string;
   status?: ApplicationStatus;
   jobId?: string;
+}
+
+export interface InterviewPaginationRequest {
+  pageNumber: number;
+  pageSize: number;
+  search?: string;
+  status?: InterviewStatus;
+  fromDate?: string;
+  toDate?: string;
 }

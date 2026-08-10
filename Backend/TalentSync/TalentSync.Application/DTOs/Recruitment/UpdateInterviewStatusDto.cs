@@ -12,6 +12,7 @@ namespace TalentSync.Application.DTOs.Recruitment
         public InterviewStatus Status { get; set; }
 
         [MaxLength(2000)]
-        public string? Feedback { get; set; }
+        [Required]
+        public string Feedback { get; set; } = string.Empty;
     }
 }

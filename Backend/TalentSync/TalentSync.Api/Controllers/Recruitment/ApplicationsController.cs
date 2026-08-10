@@ -50,7 +50,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(application);
         }
 
-        [Authorize(Roles = "Admin,HR,Recruiter")]
+        [Authorize(Roles = "Admin,HR,Recruiter,Manager")]
         [HttpGet("job/{jobId}")]
         public async Task<IActionResult> GetByJob(Guid jobId, [FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
@@ -59,7 +59,7 @@ namespace TalentSync.Api.Controllers.Recruitment
         }
 
         
-        [Authorize(Roles = "HR,Recruiter")]
+        [Authorize(Roles = "HR,Recruiter,Manager")]
         [HttpGet("candidate/{candidateId}")]
         public async Task<IActionResult> GetByCandidate(Guid candidateId,[FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
         {

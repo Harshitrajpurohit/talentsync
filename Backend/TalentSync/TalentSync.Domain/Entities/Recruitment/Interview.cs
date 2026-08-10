@@ -12,7 +12,7 @@ namespace TalentSync.Domain.Entities.Recruitment
 
         public ApplicationEntity Application { get; set; } = null!;
 
-        public DateTime ScheduledAt { get; set; }
+        public DateTimeOffset ScheduledAt { get; set; }
 
         public string? Location { get; set; }
 

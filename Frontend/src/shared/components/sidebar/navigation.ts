@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   FileBarChart2,
   UserCheck,
+  Building2,
 } from "lucide-react";
 
 import type { SidebarItem, UserRole } from "./types";
@@ -31,19 +32,9 @@ export const navigation: Record<UserRole, SidebarItem[]> = {
       icon: ShieldCheck,
     },
     {
-      title: "Jobs",
-      path: "/admin/jobs",
-      icon: Briefcase,
-    },
-    {
-      title: "Applications",
-      path: "/admin/applications",
-      icon: ClipboardList,
-    },
-    {
-      title: "Interviews",
-      path: "/admin/interviews",
-      icon: CalendarDays,
+      title: "Departments",
+      path: "/admin/departments",
+      icon: Building2 ,
     },
     {
       title: "Reports",
@@ -206,19 +197,9 @@ export const navigation: Record<UserRole, SidebarItem[]> = {
       icon: Users,
     },
     {
-      title: "Applications",
-      path: "/manager/applications",
-      icon: ClipboardList,
-    },
-    {
       title: "Interviews",
       path: "/manager/interviews",
       icon: CalendarDays,
-    },
-    {
-      title: "Reports",
-      path: "/manager/reports",
-      icon: FileBarChart2,
     },
     {
       title: "Profile",

@@ -2,16 +2,11 @@ import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { useScheduleInterview } from "../../../../../features/interviews/hooks/useScheduleInterview";
 import type { ScheduleInterviewRequest } from "../../../../../features/interviews/types/interview";
-
-interface Interviewer {
-  id: string;
-  name: string;
-}
+import { useManagers } from "../../../hooks/userrole/useManagers";
 
 interface ScheduleInterviewDialogProps {
   open: boolean;
   applicationId: string;
-  interviewers: Interviewer[];
   onClose: () => void;
   onSuccess?: () => void;
 }
@@ -19,10 +14,10 @@ interface ScheduleInterviewDialogProps {
 export default function ScheduleInterviewDialog({
   open,
   applicationId,
-  interviewers,
   onClose,
   onSuccess,
 }: ScheduleInterviewDialogProps) {
+  const { managers } = useManagers();
   const { scheduleInterview, loading, error } = useScheduleInterview();
 
   const [scheduledAt, setScheduledAt] = useState("");
@@ -32,7 +27,7 @@ export default function ScheduleInterviewDialog({
   if (!open) return null;
 
   async function handleSubmit() {
-    if (!scheduledAt || !interviewerId) return;
+    if (!scheduledAt || !interviewerId || !location) return;
 
     const request: ScheduleInterviewRequest = {
       applicationId,
@@ -95,9 +90,9 @@ export default function ScheduleInterviewDialog({
               <option value="" disabled>
                 Select Interviewer
               </option>
-              {interviewers.map((interviewer) => (
-                <option key={interviewer.id} value={interviewer.id}>
-                  {interviewer.name}
+              {managers?.map((manager) => (
+                <option key={manager.userId} value={manager.userId}>
+                  {manager.userName}
                 </option>
               ))}
             </select>
@@ -136,7 +131,7 @@ export default function ScheduleInterviewDialog({
 
           <button
             type="button"
-            disabled={loading || !scheduledAt || !interviewerId}
+            disabled={loading || !scheduledAt || !interviewerId || !location}
             onClick={handleSubmit}
             className="flex min-w-[140px] items-center justify-center rounded-[10px] bg-[#315343] px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-[#315343]/20 transition-all hover:bg-[#C3F53C] hover:text-[#315343] active:scale-95 disabled:opacity-70"
           >

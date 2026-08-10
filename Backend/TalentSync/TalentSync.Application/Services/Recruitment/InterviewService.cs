@@ -79,10 +79,10 @@ namespace TalentSync.Application.Services.Recruitment
                     "Please complete screening with a Pass result first.");
             }
 
-            List<Interview> existingInterviews = await _interviewRepository.GetByApplicationIdAsync(scheduleInterview.ApplicationId, cancellationToken);
+            Interview? existingInterview = await _interviewRepository.GetByApplicationIdAsync(scheduleInterview.ApplicationId, cancellationToken);
 
 
-            ValidateExistingInterviewStatus(existingInterviews);     
+            ValidateExistingInterviewStatus(existingInterview);     
 
             User? interviewer = await _userRepository.GetUserByIdAsync(scheduleInterview.InterviewerId, cancellationToken);
 
@@ -121,14 +121,15 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<InterviewResponseDto>(newInterview);
         }
 
-        public async Task<List<InterviewDetailedResponseDto>> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken)
+        public async Task<InterviewResponseDto> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken)
         {
             ApplicationEntity? application = await _applicationRepository.GetByIdAsync(applicationId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Application not found.");
 
-            List<Interview> interviews = await _interviewRepository.GetByApplicationIdAsync(applicationId, cancellationToken);
+            Interview interview = await _interviewRepository.GetByApplicationIdAsync(applicationId, cancellationToken)
+                ?? throw new KeyNotFoundException($"Interview not found.");
 
-            return _mapper.Map<List<InterviewDetailedResponseDto>>(interviews);
+            return _mapper.Map<InterviewResponseDto>(interview);
 
         }
 
@@ -138,6 +139,13 @@ namespace TalentSync.Application.Services.Recruitment
             _logger.LogInformation("Updating interview status for interview {InterviewId} to {NewStatus}.", id, updateInterviewStatus.Status);
 
             Interview interview = await _interviewRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException("Interview Not Found");
+            var now = DateTime.UtcNow;
+            if (interview.ScheduledAt > now && (updateInterviewStatus.Status == InterviewStatus.Passed || updateInterviewStatus.Status == InterviewStatus.Failed))
+            {
+                _logger.LogWarning("Attempted to update interview status to {NewStatus} for interview {InterviewId} which is scheduled in the future.", updateInterviewStatus.Status, id);
+                throw new InvalidOperationException(
+                    $"Cannot mark interview as '{updateInterviewStatus.Status}' before it has occurred.");
+            }
 
             if (!InterviewStatusValidator.IsValidTransition(interview.Status, updateInterviewStatus.Status)) {
                 _logger.LogWarning("Invalid interview status transition from {CurrentStatus} to {NewStatus} for interview {InterviewId}.", interview.Status, updateInterviewStatus.Status, id);
@@ -147,7 +155,7 @@ namespace TalentSync.Application.Services.Recruitment
 
             interview.Status = updateInterviewStatus.Status;
             interview.Feedback = updateInterviewStatus.Feedback;
-            interview.UpdatedAt = DateTime.UtcNow;
+            interview.UpdatedAt = now;
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             ApplicationEntity application;
@@ -163,11 +171,11 @@ namespace TalentSync.Application.Services.Recruitment
                 {
                     case InterviewStatus.Passed:
                         application.Status = ApplicationStatus.InterviewCompleted;
-                        application.UpdatedAt = DateTime.UtcNow;
+                        application.UpdatedAt = now;
                         break;
                     case InterviewStatus.Failed:
                         application.Status = ApplicationStatus.Rejected;
-                        application.UpdatedAt = DateTime.UtcNow;
+                        application.UpdatedAt = now;
                         break;
                 }
 
@@ -178,13 +186,15 @@ namespace TalentSync.Application.Services.Recruitment
 
                 _logger.LogInformation("Interview status for interview {InterviewId} updated successfully to {NewStatus}.", id, updateInterviewStatus.Status);
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError("Error occurred while updating interview status for interview {InterviewId} to {NewStatus}. Rolling back transaction.", id, updateInterviewStatus.Status);
+                _logger.LogError(ex, "Error updating interview {InterviewId}. Rolling back transaction.", id);
+
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+
                 throw;
             }
-           await SendInterviewResultNotificationAsync(application, updateInterviewStatus.Status, cancellationToken);
+            await SendInterviewResultNotificationAsync(application, interview, cancellationToken);
 
             return _mapper.Map<InterviewResponseDto>(interview);
         }
@@ -214,6 +224,7 @@ namespace TalentSync.Application.Services.Recruitment
                 interview.Status = InterviewStatus.Scheduled;
                 interview.ScheduledAt = rescheduleInterview.ScheduledAt;
                 interview.Location = rescheduleInterview.Location;
+                interview.InterviewerId = rescheduleInterview.InterviewerId;
                 interview.UpdatedAt = DateTime.UtcNow;
 
                 _interviewRepository.Update(interview);
@@ -245,7 +256,7 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<InterviewResponseDto>(interview);
         }
 
-        public async Task<List<InterviewDetailedResponseDto>> InterviewsAssignedToInterviwerAsync(Guid interviewerId, CancellationToken cancellationToken)
+        public async Task<PaginationResponse<InterviewDetailedResponseDto>> InterviewsAssignedToInterviwerAsync(Guid interviewerId, InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             User? interviewer = await _userRepository.GetUserByIdAsync(interviewerId, cancellationToken);
 
@@ -255,9 +266,15 @@ namespace TalentSync.Application.Services.Recruitment
             UserRole? userRole = await _userRoleRepository.GetByUserIdWithRoleAsync(interviewer.Id, cancellationToken);
 
             ValidateInterviewerRole(userRole);
+            int count = await _interviewRepository.CountByInterviewerIdAsync(interviewerId, paginationRequest, cancellationToken);
 
-            List<Interview> interviews = await _interviewRepository.GetByInterviewerIdAsync(interviewerId, cancellationToken);
-            return _mapper.Map<List<InterviewDetailedResponseDto>>(interviews);
+            List<Interview> interviews = await _interviewRepository.GetByInterviewerIdAsync(interviewerId, paginationRequest, cancellationToken);
+            return new PaginationResponse<InterviewDetailedResponseDto>(
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                count,
+                _mapper.Map<List<InterviewDetailedResponseDto>>(interviews)
+            );
         }
 
         public async Task<InterviewDetailedResponseDto> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken)
@@ -271,7 +288,7 @@ namespace TalentSync.Application.Services.Recruitment
             return _mapper.Map<InterviewDetailedResponseDto>(interview);
         }
 
-        public async Task<PaginationResponse<InterviewDetailedResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<PaginationResponse<InterviewDetailedResponseDto>> GetPagedByCandidateIdAsync(Guid candidateId, InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             User? candidate = await _userRepository.GetUserByIdAsync(candidateId, cancellationToken);
             if (candidate == null || candidate.IsDeleted)
@@ -279,7 +296,7 @@ namespace TalentSync.Application.Services.Recruitment
                 throw new KeyNotFoundException("Candidate Not Found");
             }
 
-            int totalRecords = await _interviewRepository.CountByCandidateIdAsync(candidateId, cancellationToken);
+            int totalRecords = await _interviewRepository.CountByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
 
             List<Interview> interviews =
                 await _interviewRepository.GetPagedByCandidateIdAsync(
@@ -297,29 +314,54 @@ namespace TalentSync.Application.Services.Recruitment
                 );
         }
 
+        public async Task<PaginationResponse<CandidateInterviewResponseDto>> GetByCandidateIdAsync(Guid candidateId, InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+
+            int totalRecords = await _interviewRepository.CountByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
+
+            List<Interview> interviews =
+                await _interviewRepository.GetPagedByCandidateIdAsync(
+                    candidateId,
+                    paginationRequest,
+                    cancellationToken);
+
+            List<CandidateInterviewResponseDto> data = _mapper.Map<List<CandidateInterviewResponseDto>>(interviews);
+
+            return new PaginationResponse<CandidateInterviewResponseDto>(
+                paginationRequest.PageNumber,
+                paginationRequest.PageSize,
+                totalRecords,
+                data
+                );
+        }
+
 
         // private 
 
         // validations
 
-        private static void ValidateInterviewScheduleTime(DateTime scheduledAt)
+        private static void ValidateInterviewScheduleTime(DateTimeOffset scheduledAt)
         {
-            if (scheduledAt <= DateTime.UtcNow.AddMinutes(5))
+            DateTimeOffset minimumAllowedTime = DateTimeOffset.UtcNow.AddMinutes(5);
+
+            if (scheduledAt <= minimumAllowedTime)
             {
                 throw new InvalidOperationException(
                     "Interview must be scheduled in the future.");
             }
         }
 
-        private static void ValidateExistingInterviewStatus(List<Interview> existingInterviews)
+        private static void ValidateExistingInterviewStatus(Interview existingInterview)
         {
-            var activeInterview = existingInterviews.FirstOrDefault(i =>
-                i.Status == InterviewStatus.Scheduled ||
-                i.Status == InterviewStatus.Passed ||
-                i.Status == InterviewStatus.Completed
-                );
-
-            switch (activeInterview?.Status)
+            //var activeInterview = existingInterviews.FirstOrDefault(i =>
+            //    i.Status == InterviewStatus.Scheduled ||
+            //    i.Status == InterviewStatus.Passed ||
+            //    i.Status == InterviewStatus.Completed
+            //    );
+            if (existingInterview == null) {
+                return;
+            }
+            switch (existingInterview?.Status)
             {
                 case InterviewStatus.Passed:
                     throw new InvalidOperationException(
@@ -357,7 +399,7 @@ namespace TalentSync.Application.Services.Recruitment
             {
                 throw new KeyNotFoundException("Role Not Assigned.");
             }
-            if (userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR && userRole.Role.Name != RoleName.Recruiter)
+            if (userRole.Role.Name != RoleName.Manager && userRole.Role.Name != RoleName.HR)
             {
                 throw new InvalidOperationException("Selected user cannot conduct interviews.");
             }
@@ -366,7 +408,7 @@ namespace TalentSync.Application.Services.Recruitment
 
         //notifications
 
-        private async Task SendInterviewScheduledNotificationsAsync(ApplicationEntity application, Guid interviewerId, DateTime scheduledAt, CancellationToken cancellationToken)
+        private async Task SendInterviewScheduledNotificationsAsync(ApplicationEntity application, Guid interviewerId, DateTimeOffset scheduledAt, CancellationToken cancellationToken)
         {
             await _notificationService.SendAsync(
                 new CreateNotificationDto
@@ -393,24 +435,64 @@ namespace TalentSync.Application.Services.Recruitment
                 cancellationToken);
         }
 
-        private async Task SendInterviewResultNotificationAsync(ApplicationEntity application, InterviewStatus status, CancellationToken cancellationToken)
+        private async Task SendInterviewResultNotificationAsync(ApplicationEntity application, Interview interview, CancellationToken cancellationToken)
         {
-            if (status != InterviewStatus.Passed &&
-                status != InterviewStatus.Failed)
-                return;
+            if (interview.Status == InterviewStatus.Passed)
+            {
+                await _notificationService.SendAsync(
+                    new CreateNotificationDto
+                    {
+                        UserId = application.CandidateId,
+                        Title = "Interview Result",
+                        Message = $"Congratulations! You have successfully cleared the interview for '{application.Job.Title}'.",
+                        Category = NotificationCategory.Recruitment,
+                        Channel = NotificationChannel.InApp
+                    },
+                    cancellationToken);
 
-            await _notificationService.SendAsync(
-                new CreateNotificationDto
-                {
-                    UserId = application.CandidateId,
-                    Title = "Interview Result",
-                    Message = status == InterviewStatus.Passed
-                        ? $"Congratulations! You have successfully cleared the interview for '{application.Job.Title}'."
-                        : $"We appreciate your interest. Unfortunately, you were not selected after the interview for '{application.Job.Title}'.",
-                    Category = NotificationCategory.Recruitment,
-                    Channel = NotificationChannel.InApp
-                },
-                cancellationToken);
+                return;
+            }
+
+            if (interview.Status == InterviewStatus.Failed)
+            {
+                await _notificationService.SendAsync(
+                    new CreateNotificationDto
+                    {
+                        UserId = application.CandidateId,
+                        Title = "Interview Result",
+                        Message = $"We appreciate your interest. Unfortunately, you were not selected after the interview for '{application.Job.Title}'.",
+                        Category = NotificationCategory.Recruitment,
+                        Channel = NotificationChannel.InApp
+                    },
+                    cancellationToken);
+
+                return;
+            }
+
+            if (interview.Status == InterviewStatus.Cancelled)
+            {
+                await _notificationService.SendAsync(
+                    new CreateNotificationDto
+                    {
+                        UserId = application.CandidateId,
+                        Title = "Interview Cancelled",
+                        Message = $"Your interview for '{application.Job.Title}' has been cancelled. A new schedule will be shared soon.",
+                        Category = NotificationCategory.Recruitment,
+                        Channel = NotificationChannel.InApp
+                    },
+                    cancellationToken);
+
+                await _notificationService.SendAsync(
+                    new CreateNotificationDto
+                    {
+                        UserId = interview.InterviewerId,
+                        Title = "Interview Cancelled",
+                        Message = $"Your interview with '{application.Candidate.Name}, {application.Candidate.Email}' for '{application.Job.Title}' has been cancelled.",
+                        Category = NotificationCategory.Recruitment,
+                        Channel = NotificationChannel.InApp
+                    },
+                    cancellationToken);
+            }
         }
 
         private async Task SendInterviewRescheduledNotificationsAsync(ApplicationEntity application, Guid interviewerId, DateTime scheduledAt, CancellationToken cancellationToken)
@@ -440,6 +522,6 @@ namespace TalentSync.Application.Services.Recruitment
                 cancellationToken);
         }
 
-        
+
     }
 }

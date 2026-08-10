@@ -1,8 +1,9 @@
-import type { JobResponse } from "../../../jobs/types/job";
+
 import { Link } from "react-router-dom";
+import type { DashboardJob } from "../../../recruiter/types/dashboard";
 
 type Props = {
-  jobs: JobResponse[];
+  jobs: DashboardJob[];
 };
 
 export default function RecentJobs({ jobs }: Props) {

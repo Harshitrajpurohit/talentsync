@@ -14,7 +14,7 @@ namespace TalentSync.Application.DTOs.Recruitment
         public Guid CandidateId { get; set; }
         public string CandidateName { get; set; } = string.Empty;
         public string CandidateEmail { get; set; } = string.Empty;
-        public DateTime ScheduledAt { get; set; }
+        public DateTimeOffset ScheduledAt { get; set; }
         public string? Location { get; set; }
         public Guid InterviewerId { get; set; }
         public string InterviewerName { get; set; } = string.Empty;

@@ -1,0 +1,1 @@
+export { default as ManagerInterviewsPage} from "./pages/ManagerInterviewsPage"

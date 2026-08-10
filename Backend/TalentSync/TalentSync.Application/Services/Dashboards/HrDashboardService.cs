@@ -48,7 +48,7 @@ namespace TalentSync.Application.Services.Dashboards
 
             var jobs = await _jobRepository.GetRecentJobsAsync(5, cancellationToken);
 
-            response.RecentJobs = _mapper.Map<List<JobResponseDto>>(jobs);
+            response.RecentJobs = _mapper.Map<List<DashboardJobDto>>(jobs);
 
 
             var applications = await _applicationRepository.GetRecentApplicationsAsync(5, cancellationToken);

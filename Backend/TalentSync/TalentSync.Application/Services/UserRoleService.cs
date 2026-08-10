@@ -8,6 +8,7 @@ using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Application.Interfaces.Services;
 using TalentSync.Domain.Entities.User;
+using TalentSync.Domain.Enums.User;
 
 namespace TalentSync.Application.Services
 {
@@ -157,5 +158,15 @@ namespace TalentSync.Application.Services
                 data:userRoles
             );
         }
+
+        public async Task<List<UserRoleResponseWithExtraDto>> GetAllUserRoleByRoleAsync(RoleName role, CancellationToken cancellationToken)
+        {
+
+            List<UserRoleResponseWithExtraDto> userRoles = await _userRoleRepository.GetAllUserRoleByRoleAsync(role, cancellationToken);
+
+            return userRoles;
+        }
+
+
     }
 }

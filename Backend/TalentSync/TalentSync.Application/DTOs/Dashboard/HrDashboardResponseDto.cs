@@ -21,6 +21,6 @@ namespace TalentSync.Application.DTOs.Dashboard
 
         public List<InterviewDetailedResponseDto> UpcomingInterviews { get; set; } = [];
 
-        public List<JobResponseDto> RecentJobs { get; set; } = [];
+        public List<DashboardJobDto> RecentJobs { get; set; } = [];
     }
 }

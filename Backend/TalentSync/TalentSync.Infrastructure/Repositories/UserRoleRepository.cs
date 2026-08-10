@@ -6,6 +6,7 @@ using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.User;
+using TalentSync.Domain.Enums.User;
 using TalentSync.Infrastructure.Persistence;
 
 namespace TalentSync.Infrastructure.Repositories
@@ -68,7 +69,7 @@ namespace TalentSync.Infrastructure.Repositories
                     Id = r.Id,
                     UserId = r.UserId,
                     RoleId = r.RoleId,
-                    RoleName = r.Role.Name.ToString(),
+                    RoleName = r.Role.Name,
                     UserName = r.User.Name,
                     IsDeleted = r.IsDeleted,
                     CreatedAt = r.CreatedAt
@@ -94,6 +95,24 @@ namespace TalentSync.Infrastructure.Repositories
                 .Select(ur => ur.UserId)
                 .Distinct()
                 .CountAsync(cancellationToken);
+        }
+
+        public async Task<List<UserRoleResponseWithExtraDto>> GetAllUserRoleByRoleAsync(RoleName role, CancellationToken cancellationToken)
+        {
+            return await _context.UserRoles.AsNoTracking()
+                .Include(ur => ur.Role)
+                .Include(ur => ur.User)
+                .Where(ur => ur.Role.Name == role && !ur.IsDeleted)
+                .Select(ur => new UserRoleResponseWithExtraDto
+                {
+                    Id = ur.Id,
+                    UserId = ur.UserId,
+                    UserName = ur.User.Name,
+                    RoleId = ur.RoleId,
+                    RoleName = ur.Role.Name,
+                    CreatedAt = ur.CreatedAt,
+                    IsDeleted = ur.IsDeleted,
+                }).ToListAsync(cancellationToken);
         }
     }
 }

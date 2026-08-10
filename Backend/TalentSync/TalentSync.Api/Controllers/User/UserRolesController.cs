@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Services;
+using TalentSync.Domain.Enums.User;
 
 namespace TalentSync.Api.Controllers.User
 {
@@ -37,6 +38,15 @@ namespace TalentSync.Api.Controllers.User
             PaginationResponse<UserRoleResponseWithExtraDto> userRoles = await _userRoleService.GetAllUserRolesAsync(paginationRequest, cancellationToken);
             return Ok(userRoles);
         }
+
+
+        [HttpGet("users/{role}")]
+        public async Task<IActionResult> GetAllUserRoleByRoleAsync([FromRoute] RoleName role, CancellationToken cancellationToken)
+        {
+            List<UserRoleResponseWithExtraDto> userRoles = await _userRoleService.GetAllUserRoleByRoleAsync(role, cancellationToken);
+            return Ok(userRoles);
+        }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserRoleAsync(Guid id, [FromBody] UserRoleRequestDTO updateDto, CancellationToken cancellationToken)

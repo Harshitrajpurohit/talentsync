@@ -1,6 +1,6 @@
 import type { ApplicationWithDetails } from "../../application/types/application";
 import type { InterviewDetailed } from "../../interviews/types/interview";
-import type { JobResponse } from "../../jobs/types/job";
+import type { DashboardJob } from "../../recruiter/types/dashboard";
 
 export type HrDashboard = {
   totalJobs: number;
@@ -11,5 +11,5 @@ export type HrDashboard = {
 
   recentApplications: ApplicationWithDetails[];
   upcomingInterviews: InterviewDetailed[];
-  recentJobs: JobResponse[];
+  recentJobs: DashboardJob[];
 };

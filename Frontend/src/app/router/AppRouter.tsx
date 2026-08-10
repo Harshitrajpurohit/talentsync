@@ -6,15 +6,14 @@ import { AdminDashboard, CandidateDashboard, EmployeeDashboard, ManagerDashboard
 import RegisterPage from "../../features/auth/pages/RegisterPage";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProfilePage from "../../features/profile";
-import CandidateApplicationsPage from "../../features/candidate/pages/CandidateApplicationsPage";
-import CandidateJobsPage from "../../features/candidate/pages/CandidateJobsPage";
-import CandidateJobDetailsPage from "../../features/candidate/pages/CandidateJobDetailsPage";
 import NotificationsPage from "../../features/notifications/pages/NotificationsPage";
 import HrDashboardPage from "../../features/hr/pages/HrDashboardPage";
+import { CandidateApplicationsPage, CandidateInterviewsPage, CandidateJobDetailsPage, CandidateJobsPage } from "../../features/candidate";
 import { EmployeesPage } from "../../features/hr";
 import { ApplicationDetailsPage, ApplicationsPage } from "../../features/application";
 import { CandidateDetailsPage, CandidatesPage } from "../../features/candidate-management";
 import { JobDetailsPage, JobsPage } from "../../features/jobs";
+import { ManagerInterviewsPage } from "../../features/interviews";
 
 
 
@@ -76,11 +75,9 @@ const AppRouter = () => (
 
           <Route path="/admin/users" element={<>Users</>} />
           <Route path="/admin/roles" element={<>Roles</>} />
-          <Route path="/admin/jobs" element={<>Jobs</>} />
-          <Route path="/admin/applications" element={<>Applications</>} />
-          <Route path="/admin/interviews" element={<>Interviews</>} />
+          <Route path="/admin/Departments" element={<>Departments</>} />
           <Route path="/admin/reports" element={<>Reports</>} />
-          <Route path="/admin/profile" element={<>Profile</>} />
+          <Route path="/admin/profile" element={<ProfilePage/>} />
           <Route path="/admin/settings" element={<>Settings</>} />
 
         </Route>
@@ -119,7 +116,7 @@ const AppRouter = () => (
           <Route path="/candidate/jobs" element={<CandidateJobsPage />} />
           <Route path="/candidate/jobs/:id" element={<CandidateJobDetailsPage />}/>
           <Route path="/candidate/applications" element={<CandidateApplicationsPage/>} />
-          <Route path="/candidate/interviews" element={<>Interviews</>} />
+          <Route path="/candidate/interviews" element={<CandidateInterviewsPage />} />
           <Route path="/candidate/profile" element={<ProfilePage/>} />
           <Route path="/candidate/settings" element={<>Settings</>} />
 
@@ -135,7 +132,7 @@ const AppRouter = () => (
 
           <Route path="/employee" element={<EmployeeDashboard />} />
 
-          <Route path="/employee/profile" element={<>Profile</>} />
+          <Route path="/employee/profile" element={<ProfilePage/>} />
           <Route path="/employee/settings" element={<>Settings</>} />
 
         </Route>
@@ -174,12 +171,12 @@ const AppRouter = () => (
 
           <Route path="/manager" element={<ManagerDashboard />} />
 
-          <Route path="/manager/jobs" element={<>Jobs</>} />
-          <Route path="/manager/candidates" element={<>Candidates</>} />
-          <Route path="/manager/applications" element={<>Applications</>} />
-          <Route path="/manager/interviews" element={<>Interviews</>} />
-          <Route path="/manager/reports" element={<>Reports</>} />
-          <Route path="/manager/profile" element={<>Profile</>} />
+          <Route path="/manager/jobs" element={<JobsPage/>} />
+          <Route path="/manager/jobs/:id" element={<JobDetailsPage/>} />
+          <Route path="/manager/candidates" element={<CandidatesPage/>} />
+          <Route path="/manager/candidates/:id" element={<CandidateDetailsPage/>}/>
+          <Route path="/manager/interviews" element={<ManagerInterviewsPage/>} />
+          <Route path="/manager/profile" element={<ProfilePage/>} />
           <Route path="/manager/settings" element={<>Settings</>} />
 
         </Route>

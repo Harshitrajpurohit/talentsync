@@ -14,5 +14,6 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<bool> ExistsByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken);
         Task<bool> HasPassedScreeningAsync(Guid applicationId, CancellationToken cancellationToken);
         Task<Screening?> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken);
+        Task<int> CountPendingScreeningsAsync(CancellationToken cancellationToken);
     }
 }

@@ -9,8 +9,9 @@ export type ApplicationStatus =
 export type InterviewStatus =
   | "Scheduled"
   | "Completed"
+  | "Passed"
+  | "Failed"
   | "Cancelled"
-  | "Rescheduled";
 
 
 export type JobStatus =

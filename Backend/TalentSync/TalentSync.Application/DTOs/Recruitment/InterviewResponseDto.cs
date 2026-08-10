@@ -9,7 +9,7 @@ namespace TalentSync.Application.DTOs.Recruitment
     {
         public Guid Id { get; set; }
         public Guid ApplicationId { get; set; }
-        public DateTime ScheduledAt { get; set; }
+        public DateTimeOffset ScheduledAt { get; set; }
         public string? Location { get; set; }
         public Guid InterviewerId { get; set; }
         public string InterviewerName { get; set; } = string.Empty;

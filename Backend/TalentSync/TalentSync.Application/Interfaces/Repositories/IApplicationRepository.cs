@@ -36,6 +36,6 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<List<ApplicationEntity>> GetRecentApplicationsAsync(
             int count,
             CancellationToken cancellationToken);
-
+        Task<int> CountTodaysApplicationsAsync(CancellationToken cancellationToken);
     }
 }

@@ -30,7 +30,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(interview);
         }
 
-        [Authorize(Roles = "HR,Recruiter")]
+        [Authorize(Roles = "HR")]
         [HttpPatch("{id}/Cancel")]
         public async Task<IActionResult> CancelInterview(Guid id,[FromBody] UpdateInterviewStatusDto updateInterviewStatus, CancellationToken cancellationToken)
         {
@@ -48,7 +48,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(interview);
         }
 
-        [Authorize(Roles = "HR,Recruiter")]
+        [Authorize(Roles = "HR")]
         [HttpPatch("{id}/reschedule")]
         public async Task<IActionResult> RescheduleInterview(Guid id, [FromBody] RescheduleInterviewDto rescheduleInterview, CancellationToken cancellationToken)
         {
@@ -60,7 +60,7 @@ namespace TalentSync.Api.Controllers.Recruitment
 
         [Authorize(Roles = "Manager,HR")]
         [HttpPatch("{id}/outcome")]
-        public async Task<IActionResult> RecordOutcome(Guid id, [FromBody] UpdateInterviewStatusDto updateInterviewStatus, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateInterviewOutcome(Guid id, [FromBody] UpdateInterviewStatusDto updateInterviewStatus, CancellationToken cancellationToken)
         {
             var allowed = new[] { InterviewStatus.Passed, InterviewStatus.Failed };
             if (!allowed.Contains(updateInterviewStatus.Status))
@@ -78,18 +78,18 @@ namespace TalentSync.Api.Controllers.Recruitment
         [HttpGet("application/{applicationId}")]
         public async Task<IActionResult> GetByApplicationId(Guid applicationId, CancellationToken cancellationToken)
         {
-            List<InterviewDetailedResponseDto> interviews = await _interviewService.GetByApplicationIdAsync(applicationId, cancellationToken);
-            return Ok(interviews);
+            InterviewResponseDto interview = await _interviewService.GetByApplicationIdAsync(applicationId, cancellationToken);
+            return Ok(interview);
         }
 
 
         [Authorize(Roles = "Manager,HR,Recruiter")]
-        [HttpGet("my")]
-        public async Task<IActionResult> InterviewsAssignedToInterviwer(CancellationToken cancellationToken)
+        [HttpGet("assigned")]
+        public async Task<IActionResult> InterviewsAssignedToInterviewer([FromQuery] InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
             Guid interviewerId = User.GetUserId();
 
-            List<InterviewDetailedResponseDto> interviews = await _interviewService.InterviewsAssignedToInterviwerAsync(interviewerId, cancellationToken);
+            PaginationResponse<InterviewDetailedResponseDto> interviews = await _interviewService.InterviewsAssignedToInterviwerAsync(interviewerId, paginationRequest, cancellationToken);
 
             return Ok(interviews);
         }
@@ -105,13 +105,22 @@ namespace TalentSync.Api.Controllers.Recruitment
 
         [Authorize(Roles = "HR,Recruiter,Manager")]
         [HttpGet("candidate/{candidateId}")]
-        public async Task<IActionResult> GetByCandidate(Guid candidateId, [FromQuery] PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByCandidate(Guid candidateId, [FromQuery] InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
 
             PaginationResponse<InterviewDetailedResponseDto> interviews = await _interviewService.GetPagedByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
             return Ok(interviews);
         }
 
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("candidate")]
+        public async Task<IActionResult> GetMyInterviews([FromQuery] InterviewPaginationRequest paginationRequest, CancellationToken cancellationToken)
+        {
+            Guid candidateId = User.GetUserId();
 
+            PaginationResponse<CandidateInterviewResponseDto> interviews = await _interviewService.GetByCandidateIdAsync(candidateId, paginationRequest, cancellationToken);
+
+            return Ok(interviews);
+        }
     }
 }

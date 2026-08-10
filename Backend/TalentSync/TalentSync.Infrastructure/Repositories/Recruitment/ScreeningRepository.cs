@@ -67,5 +67,9 @@ namespace TalentSync.Infrastructure.Repositories.Recruitment
                     s => s.ApplicationId == applicationId && !s.IsDeleted, cancellationToken);
         }
 
+        public async Task<int> CountPendingScreeningsAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Applications.AsNoTracking().CountAsync(a => a.Status == ApplicationStatus.Submitted && !a.IsDeleted, cancellationToken);
+        }
     }
 }

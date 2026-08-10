@@ -43,7 +43,7 @@ namespace TalentSync.Api.Controllers.Recruitment
             return Ok(jobResponse);
         }
 
-        [Authorize(Roles = "Admin,HR,Recruiter")]
+        [Authorize(Roles = "Admin,HR,Recruiter,Manager")]
         [HttpGet("{id:guid}/summary")]
         public async Task<IActionResult> GetJobSummaryAsync(Guid id, CancellationToken cancellationToken)
         {

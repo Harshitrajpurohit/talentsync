@@ -18,7 +18,7 @@ namespace TalentSync.Api.Controllers.User
         [HttpGet]
         public async Task<IActionResult> GetAllRolesAsync(CancellationToken cancellationToken)
         {
-            List<string> roles = await _roleService.GetAllRolesAsync(cancellationToken);
+            List<RoleResponseDto> roles = await _roleService.GetAllRolesAsync(cancellationToken);
             return Ok(roles);
         }
 

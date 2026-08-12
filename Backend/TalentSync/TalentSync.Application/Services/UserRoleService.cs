@@ -142,15 +142,15 @@ namespace TalentSync.Application.Services
             return true;
         }
 
-        public async Task<PaginationResponse<UserRoleResponseWithExtraDto>> GetAllUserRolesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<PaginationResponse<UserWithRolesDto>> GetAllUserRolesAsync(UserPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
 
-            int totalUserRoles = await _userRoleRepository.CountActiveUserRoleAsync(cancellationToken);
+            int totalUserRoles = await _userRoleRepository.CountUserRoleAsync(paginationRequest, cancellationToken);
 
-            List<UserRoleResponseWithExtraDto> userRoles = await _userRoleRepository.GetAllUserRolesAsync(paginationRequest, cancellationToken);
+            List<UserWithRolesDto> userRoles = await _userRoleRepository.GetAllUserRolesAsync(paginationRequest, cancellationToken);
             
             _logger.LogInformation("Retrieved all user roles.");
-            return new PaginationResponse<UserRoleResponseWithExtraDto>
+            return new PaginationResponse<UserWithRolesDto>
             (
                 pageNumber:paginationRequest.PageNumber,
                 pageSize:paginationRequest.PageSize,

@@ -24,10 +24,11 @@ namespace TalentSync.Application.Services
             _logger = logger;
         }
 
-        public async Task<List<string>> GetAllRolesAsync(CancellationToken cancellationToken)
+        public async Task<List<RoleResponseDto>> GetAllRolesAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Fetching all roles.");
-            return await _roleRepository.GetAllRolesAsync(cancellationToken);
+            List<Role> roles =  await _roleRepository.GetAllRolesAsync(cancellationToken);
+            return _mapper.Map<List<RoleResponseDto>>(roles);
         }
 
         public async Task<RoleResponseDto?> GetRoleByIdAsync(Guid rId, CancellationToken cancellationToken)

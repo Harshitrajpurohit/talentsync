@@ -14,6 +14,7 @@ import { ApplicationDetailsPage, ApplicationsPage } from "../../features/applica
 import { CandidateDetailsPage, CandidatesPage } from "../../features/candidate-management";
 import { JobDetailsPage, JobsPage } from "../../features/jobs";
 import { ManagerInterviewsPage } from "../../features/interviews";
+import { AdminUsersPage } from "../../features/admin";
 
 
 
@@ -73,9 +74,8 @@ const AppRouter = () => (
 
           <Route path="/admin" element={<AdminDashboard />} />
 
-          <Route path="/admin/users" element={<>Users</>} />
+          <Route path="/admin/users" element={<AdminUsersPage/>} />
           <Route path="/admin/roles" element={<>Roles</>} />
-          <Route path="/admin/Departments" element={<>Departments</>} />
           <Route path="/admin/reports" element={<>Reports</>} />
           <Route path="/admin/profile" element={<ProfilePage/>} />
           <Route path="/admin/settings" element={<>Settings</>} />

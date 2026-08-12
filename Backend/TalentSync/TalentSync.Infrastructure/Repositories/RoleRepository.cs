@@ -18,11 +18,10 @@ namespace TalentSync.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<string>> GetAllRolesAsync(CancellationToken cancellationToken)
+        public async Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken)
         {
             var roles = await _context.Roles.AsNoTracking()
                 .Where(r => !r.IsDeleted)
-                .Select(r => r.Name.ToString())
                 .ToListAsync(cancellationToken);
 
             return roles;

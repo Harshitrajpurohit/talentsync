@@ -10,6 +10,7 @@ using TalentSync.Domain.Entities.User;
 
 namespace TalentSync.Api.Controllers.User
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -45,6 +46,8 @@ namespace TalentSync.Api.Controllers.User
             UserResponseDto userResponseDto = await _userService.UpdateUserAsync(id, updateUserDTO, cancellationToken);
             return Ok(userResponseDto);
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserAsync(Guid id, CancellationToken cancellationToken)
         {
@@ -60,22 +63,31 @@ namespace TalentSync.Api.Controllers.User
         }
 
         // Restore User
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/restore")]
         public async Task<IActionResult> RestoreUserAsync(Guid id, CancellationToken cancellationToken)
         {
             UserResponseDto userResponseDto = await _userService.RestoreUserAsync(id, cancellationToken);
-            return Ok(userResponseDto);
+            return Ok(new
+            {
+                userId = id,
+                isDeleted = userResponseDto.IsDeleted,
+            });
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> ChangeUserStatusAsync(Guid id, [FromQuery] UserStatus newStatus, CancellationToken cancellationToken)
         {
             UserResponseDto userResponseDto = await _userService.ChangeUserStatusAsync(id, newStatus, cancellationToken);
 
-            return Ok(userResponseDto);
+            return Ok(new
+            {
+                userId = id,
+                status = userResponseDto.Status,
+            });
         }
-
-
 
 
         [HttpGet("me")]

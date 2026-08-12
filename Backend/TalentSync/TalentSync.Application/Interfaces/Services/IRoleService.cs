@@ -8,7 +8,7 @@ namespace TalentSync.Application.Interfaces.Services
 {
     public interface IRoleService
     {
-        Task<List<string>> GetAllRolesAsync(CancellationToken cancellationToken);
+        Task<List<RoleResponseDto>> GetAllRolesAsync(CancellationToken cancellationToken);
         Task<RoleResponseDto?> GetRoleByIdAsync(Guid rId, CancellationToken cancellationToken);
         Task<RoleResponseDto?> GetRoleByRoleNameAsync(RoleName name, CancellationToken cancellationToken);
         Task<RoleResponseDto> CreateRoleAsync(CreateRoleDTO createRoleDTO, CancellationToken cancellationToken);

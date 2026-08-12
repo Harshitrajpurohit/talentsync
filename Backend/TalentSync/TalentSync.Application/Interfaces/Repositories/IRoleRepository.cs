@@ -8,7 +8,7 @@ namespace TalentSync.Application.Interfaces.Repositories
 {
     public interface IRoleRepository
     {
-        Task<List<string>> GetAllRolesAsync(CancellationToken cancellationToken);
+        Task<List<Role>> GetAllRolesAsync(CancellationToken cancellationToken);
         Task<Role?> GetRoleByIdAsync(Guid rId, CancellationToken cancellationToken);
         Task<Role?> GetRoleByRoleNameAsync(RoleName roleName, CancellationToken cancellationToken);
         Task<Role?> GetRoleByIdForUpdateAsync(Guid rId, CancellationToken cancellationToken);

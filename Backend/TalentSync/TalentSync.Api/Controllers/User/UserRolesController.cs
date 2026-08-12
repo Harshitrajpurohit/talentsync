@@ -33,9 +33,9 @@ namespace TalentSync.Api.Controllers.User
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUserRoleAsync([FromQuery]PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllUserRoleAsync([FromQuery] UserPaginationRequest paginationRequest, CancellationToken cancellationToken)
         {
-            PaginationResponse<UserRoleResponseWithExtraDto> userRoles = await _userRoleService.GetAllUserRolesAsync(paginationRequest, cancellationToken);
+            PaginationResponse<UserWithRolesDto> userRoles = await _userRoleService.GetAllUserRolesAsync(paginationRequest, cancellationToken);
             return Ok(userRoles);
         }
 

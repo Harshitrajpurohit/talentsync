@@ -14,7 +14,7 @@ namespace TalentSync.Application.Interfaces.Services
         Task<UserRoleResponseDto> GetByUserIdAsync(Guid uId, CancellationToken cancellationToken);
         Task<UserRoleResponseDto> UpdateUserRoleAsync(Guid urId, UserRoleRequestDTO updateDto, CancellationToken cancellationToken);
         Task<bool> DeleteUserRoleAsync(Guid urId, CancellationToken cancellationToken);
-        Task<PaginationResponse<UserRoleResponseWithExtraDto>> GetAllUserRolesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken);
+        Task<PaginationResponse<UserWithRolesDto>> GetAllUserRolesAsync(UserPaginationRequest paginationRequest, CancellationToken cancellationToken);
         Task<List<UserRoleResponseWithExtraDto>> GetAllUserRoleByRoleAsync(RoleName role, CancellationToken cancellationToken);
     }
 }

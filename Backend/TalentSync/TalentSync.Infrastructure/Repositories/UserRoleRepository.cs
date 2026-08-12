@@ -8,6 +8,7 @@ using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.User;
 using TalentSync.Domain.Enums.User;
 using TalentSync.Infrastructure.Persistence;
+using TalentSync.Infrastructure.Persistence.Extensions;
 
 namespace TalentSync.Infrastructure.Repositories
 {
@@ -55,31 +56,50 @@ namespace TalentSync.Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<UserRoleResponseWithExtraDto>> GetAllUserRolesAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
+        public async Task<List<UserWithRolesDto>> GetAllUserRolesAsync(
+            UserPaginationRequest paginationRequest,
+            CancellationToken cancellationToken)
         {
-            var query = _context.UserRoles.AsNoTracking();
+            IQueryable<UserRole> query = _context.UserRoles
+                .AsNoTracking();
+
+            query = UserQueryExtensions.ApplyFilters(query, paginationRequest);
 
             return await query
-                .Where(ur => !ur.IsDeleted)
                 .OrderByDescending(ur => ur.CreatedAt)
-                .Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1))
+                .Skip(
+                    (paginationRequest.PageNumber - 1) *
+                    paginationRequest.PageSize)
                 .Take(paginationRequest.PageSize)
-                .Select(r => new UserRoleResponseWithExtraDto
+                .Select(ur => new UserWithRolesDto
                 {
-                    Id = r.Id,
-                    UserId = r.UserId,
-                    RoleId = r.RoleId,
-                    RoleName = r.Role.Name,
-                    UserName = r.User.Name,
-                    IsDeleted = r.IsDeleted,
-                    CreatedAt = r.CreatedAt
-                }).ToListAsync(cancellationToken);
+                    Id = ur.Id,
+                    UserId = ur.UserId,
+                    RoleId = ur.RoleId,
+                    Name = ur.User.Name,
+                    Email = ur.User.Email,
+                    Phone = ur.User.Phone,
+                    Status = ur.User.Status,
+                    Role = ur.Role.Name,
+                    IsDeleted = ur.User.IsDeleted,
+                    CreatedAt = ur.User.CreatedAt
+                })
+                .ToListAsync(cancellationToken);
+        }
+        public async Task<int> CountUserRoleAsync(
+            UserPaginationRequest paginationRequest,
+            CancellationToken cancellationToken)
+        {
+            IQueryable<UserRole> query = _context.UserRoles
+                .AsNoTracking();
+
+            query = UserQueryExtensions.ApplyFilters(
+                query,
+                paginationRequest);
+
+            return await query.CountAsync(cancellationToken);
         }
 
-        public async Task<int> CountUserRoleAsync(CancellationToken cancellationToken)
-        {
-            return await _context.UserRoles.AsNoTracking().CountAsync(cancellationToken);
-        }
         public async Task<int> CountActiveUserRoleAsync(CancellationToken cancellationToken)
         {
             return await _context.UserRoles.AsNoTracking().CountAsync(u => !u.IsDeleted, cancellationToken);

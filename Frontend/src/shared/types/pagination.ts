@@ -1,4 +1,6 @@
 import type { ApplicationStatus, InterviewStatus } from "./recruitment";
+import type { UserRole } from "./role";
+import type { UserStatus } from "./user";
 
 export interface PaginationRequest {
   pageNumber: number;
@@ -27,4 +29,12 @@ export interface InterviewPaginationRequest {
   status?: InterviewStatus;
   fromDate?: string;
   toDate?: string;
+}
+
+export interface UserPaginationRequest {
+  pageNumber: number;
+  pageSize: number;
+  search?: string;
+  status?: UserStatus;
+  role?: UserRole;
 }

@@ -26,16 +26,11 @@ export const navigation: Record<UserRole, SidebarItem[]> = {
       path: "/admin/users",
       icon: Users,
     },
-    {
-      title: "Roles",
-      path: "/admin/roles",
-      icon: ShieldCheck,
-    },
-    {
-      title: "Reports",
-      path: "/admin/reports",
-      icon: FileBarChart2,
-    },
+    // {
+    //   title: "Reports",
+    //   path: "/admin/reports",
+    //   icon: FileBarChart2,
+    // },
     {
       title: "Profile",
       path: "/admin/profile",

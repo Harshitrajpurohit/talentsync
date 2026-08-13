@@ -1,6 +1,10 @@
+using CloudinaryDotNet;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -17,6 +21,7 @@ using TalentSync.Application.Services.Dashboards;
 using TalentSync.Application.Services.Employees;
 using TalentSync.Application.Services.Notifications;
 using TalentSync.Application.Services.Recruitment;
+using TalentSync.Infrastructure.HealthChecks;
 using TalentSync.Infrastructure.Notifications;
 using TalentSync.Infrastructure.Notifications.SignalR.Hubs;
 using TalentSync.Infrastructure.Persistence;
@@ -38,6 +43,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         b => b.MigrationsAssembly("TalentSync.Api")
     )
 );
+
+
+// Health Check
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")!,
+        name: "sql-server", tags: new[] { "ready" })
+    .AddCheck<CloudinaryHealthCheck>(name: "coundinary", tags: new[] { "ready" });
+
+
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -81,6 +96,22 @@ builder.Services.AddSignalR();
 // Cloudinary Configuration
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
+builder.Services.AddSingleton<Cloudinary>(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<CloudinarySettings>>();
+
+    var account = new Account(
+        options.Value.CloudName,
+        options.Value.ApiKey,
+        options.Value.ApiSecret);
+
+    return new Cloudinary(account)
+    {
+        Api = { Secure = true }
+    };
+});
+
 
 // register auto mapper
 builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
@@ -165,7 +196,15 @@ builder.Services.AddAuthentication(options =>
 
 
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+   options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+});
+
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -200,8 +239,24 @@ using (var scope = app.Services.CreateScope())
 
 //app.UseHttpsRedirection();
 
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+}).RequireAuthorization("AdminOnly");
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");

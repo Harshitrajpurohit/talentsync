@@ -16,24 +16,30 @@ namespace TalentSync.Infrastructure.Services
         private readonly Cloudinary _cloudinary;
         private readonly ILogger<CloudinaryService> _logger;
 
-        public CloudinaryService(IOptions<CloudinarySettings> options, ILogger<CloudinaryService> logger)
+        //public CloudinaryService(IOptions<CloudinarySettings> options, ILogger<CloudinaryService> logger)
+        //{
+        //    _logger = logger;
+
+        //    if (string.IsNullOrWhiteSpace(options.Value.CloudName) ||
+        //        string.IsNullOrWhiteSpace(options.Value.ApiKey) ||
+        //        string.IsNullOrWhiteSpace(options.Value.ApiSecret))
+        //    {
+        //        throw new InvalidOperationException("Cloudinary configuration is missing.");
+        //    }
+
+        //    var account = new Account(options.Value.CloudName, options.Value.ApiKey, options.Value.ApiSecret);
+
+        //    _cloudinary = new Cloudinary(account)
+        //    {
+        //        Api = { Secure = true }
+        //    };
+
+        //}
+
+        public CloudinaryService(Cloudinary cloudinary, ILogger<CloudinaryService> logger)
         {
+            _cloudinary = cloudinary;
             _logger = logger;
-
-            if (string.IsNullOrWhiteSpace(options.Value.CloudName) ||
-                string.IsNullOrWhiteSpace(options.Value.ApiKey) ||
-                string.IsNullOrWhiteSpace(options.Value.ApiSecret))
-            {
-                throw new InvalidOperationException("Cloudinary configuration is missing.");
-            }
-
-            var account = new Account(options.Value.CloudName, options.Value.ApiKey, options.Value.ApiSecret);
-
-            _cloudinary = new Cloudinary(account)
-            {
-                Api = { Secure = true }
-            };
-
         }
 
         public async Task<CloudinaryUploadResultDto> UploadResumeAsync(

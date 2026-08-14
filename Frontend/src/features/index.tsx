@@ -1,5 +1,5 @@
 
-export { default as AdminDashboard } from "./admin/pages/Dashboard";
+export { default as AdminDashboard } from "./admin/pages/AdminDashboardPage";
 export { default as RecruiterDashboard } from "./recruiter/pages/RecruiterDashboardPage";
 export { default as CandidateDashboard } from "./candidate/pages/CandidateDashboard";
 export { default as EmployeeDashboard } from "./employee/pages/Dashboard";

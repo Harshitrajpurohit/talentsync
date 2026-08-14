@@ -17,13 +17,15 @@ namespace TalentSync.Api.Controllers.Dashboard
         private readonly IHrDashboardService _hrDashboardService;
         private readonly IRecruiterDashboardService _recruiterDashboardService;
         private readonly IManagerDashboardService _managerDashboardService;
+        private readonly IAdminDashboardService _adminDashboardService;
 
-        public DashboardController(ICandidateDashboardService candidateDashboardService, IHrDashboardService hrDashboardService, IRecruiterDashboardService recruiterDashboardService, IManagerDashboardService managerDashboardService)
+        public DashboardController(ICandidateDashboardService candidateDashboardService, IHrDashboardService hrDashboardService, IRecruiterDashboardService recruiterDashboardService, IManagerDashboardService managerDashboardService, IAdminDashboardService adminDashboardService)
         {
             _candidateDashboardService = candidateDashboardService;
             _hrDashboardService = hrDashboardService;
             _recruiterDashboardService = recruiterDashboardService;
             _managerDashboardService = managerDashboardService;
+            _adminDashboardService = adminDashboardService;
         }
 
         [Authorize]
@@ -63,7 +65,7 @@ namespace TalentSync.Api.Controllers.Dashboard
                 // ...
 
                 case nameof(RoleName.Admin):
-                // ...
+                    return Ok(await _adminDashboardService.GetDashboardAsync(uId, cancellationToken));
 
                 default:
                     return Forbid();

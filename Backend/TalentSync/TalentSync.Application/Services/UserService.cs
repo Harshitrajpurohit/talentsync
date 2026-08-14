@@ -30,7 +30,7 @@ namespace TalentSync.Application.Services
 
         public async Task<PaginationResponse<UserWithRolesResponseDto>> GetAllUsersAsync(PaginationRequest paginationRequest,CancellationToken cancellationToken)
         {
-            int totalUsers = await _userRepository.CountActiveUsersAsync(cancellationToken);
+            int totalUsers = await _userRepository.CountNonDeletedUsersAyns(cancellationToken);
 
             List<UserWithRolesResponseDto> users = await _userRepository.GetAllUsersAsync(paginationRequest, cancellationToken);
             

@@ -146,6 +146,8 @@ builder.Services.AddScoped<ICandidateDashboardService, CandidateDashboardService
 builder.Services.AddScoped<IHrDashboardService, HrDashboardService>();
 builder.Services.AddScoped<IRecruiterDashboardService, RecruiterDashboardService>();
 builder.Services.AddScoped<IManagerDashboardService, ManagerDashboardService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationSender, SignalRNotificationSender>();
@@ -253,7 +255,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
     Predicate = check => check.Tags.Contains("ready")
 });
 
-app.MapHealthChecks("/health", new HealthCheckOptions
+app.MapHealthChecks("/api/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 }).RequireAuthorization("AdminOnly");

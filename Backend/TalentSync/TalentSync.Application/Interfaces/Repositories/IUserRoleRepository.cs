@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
+using TalentSync.Application.DTOs.Dashboard;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Domain.Entities.User;
 using TalentSync.Domain.Enums.User;
@@ -21,5 +22,6 @@ namespace TalentSync.Application.Interfaces.Repositories
         Task<int> CountActiveUserRoleAsync(CancellationToken cancellationToken);
         Task<int> GetCandidateCountAsync(CancellationToken cancellationToken);
         Task<List<UserRoleResponseWithExtraDto>> GetAllUserRoleByRoleAsync(RoleName role, CancellationToken cancellationToken);
+        Task<List<AdminRoleCountDto>> GetUserCountByRoleAsync(CancellationToken cancellationToken);
     }
 }

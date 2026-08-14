@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
+using TalentSync.Application.DTOs.Dashboard;
 using TalentSync.Application.DTOs.User;
 using TalentSync.Application.Interfaces.Repositories;
 using TalentSync.Domain.Entities.User;
@@ -133,6 +134,19 @@ namespace TalentSync.Infrastructure.Repositories
                     CreatedAt = ur.CreatedAt,
                     IsDeleted = ur.IsDeleted,
                 }).ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<AdminRoleCountDto>> GetUserCountByRoleAsync(CancellationToken cancellationToken)
+        {
+            return await _context.UserRoles.AsNoTracking()
+                .Where(ur => !ur.IsDeleted && !ur.User.IsDeleted)
+                .GroupBy(ur => ur.Role.Name)
+                .Select(group => new AdminRoleCountDto
+                {
+                    Role = group.Key,
+                    Count = group.Count()
+                }).OrderByDescending(ur => ur.Count)
+                .ToListAsync(cancellationToken);
         }
     }
 }

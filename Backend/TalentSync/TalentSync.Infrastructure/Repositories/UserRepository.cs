@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 using TalentSync.Application.Common.Pagination;
 using TalentSync.Application.DTOs.User;
@@ -24,9 +25,13 @@ namespace TalentSync.Infrastructure.Repositories
         {
             return await _context.Users.AsNoTracking().CountAsync(cancellationToken);
         }
-        public async Task<int> CountActiveUsersAsync(CancellationToken cancellationToken)
+        public async Task<int> CountNonDeletedUsersAyns(CancellationToken cancellationToken)
         {
             return await _context.Users.AsNoTracking().CountAsync(u => !u.IsDeleted, cancellationToken);
+        }
+        public async Task<int> CountByStatusAsync(UserStatus status, CancellationToken cancellationToken)
+        {
+            return await _context.Users.AsNoTracking().CountAsync(u => !u.IsDeleted && u.Status==status, cancellationToken);
         }
 
         public async Task<List<UserWithRolesResponseDto>> GetAllUsersAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
